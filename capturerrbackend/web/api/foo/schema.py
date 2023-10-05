@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import List, Optional
 
 from pydantic import BaseModel, ConfigDict
 
@@ -15,10 +15,15 @@ class FooModelDTO(BaseModel):
     id: int
     name: str
     model_config = ConfigDict(from_attributes=True)
-    bars: Optional[list[BarModelDTO]] = None
+    bars: Optional[List[BarModelDTO]] = None
 
 
 class FooModelInputDTO(BaseModel):
     """DTO for creating new foo model."""
 
     name: str
+
+
+# from capturerrbackend.web.api.bar.schema import BarModelDTO
+
+# BarModelDTO.model_rebuild()

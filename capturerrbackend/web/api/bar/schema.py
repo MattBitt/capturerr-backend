@@ -10,6 +10,7 @@ class BarModelDTO(BaseModel):
 
     id: int
     title: str
+    # captures: Optional[List[FooModelDTO]]
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -17,3 +18,8 @@ class BarModelInputDTO(BaseModel):
     """DTO for creating new bar model."""
 
     title: str
+
+
+# from capturerrbackend.web.api.foo.schema import FooModelDTO
+
+# FooModelDTO.model_rebuild()
