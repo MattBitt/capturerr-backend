@@ -28,7 +28,7 @@ class Settings(BaseSettings):
     with environment variables.
     """
 
-    host: str = "127.0.0.1"
+    host: str = "0.0.0.0"
     port: int = 8000
     # quantity of workers for uvicorn
     workers_count: int = 1
@@ -41,10 +41,10 @@ class Settings(BaseSettings):
     log_level: LogLevel = LogLevel.INFO
     users_secret: str = os.getenv("USERS_SECRET", "")
     # Variables for the database
-    db_host: str = "localhost"
+    db_host: str = "192.168.0.116"
     db_port: int = 5432
-    db_user: str = "capturerrbackend"
-    db_pass: str = "capturerrbackend"
+    db_user: str = "postgres"
+    db_pass: str = "postgres"
     db_base: str = "capturerrbackend"
     db_echo: bool = False
 

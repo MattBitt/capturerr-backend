@@ -294,6 +294,17 @@ python-versions = ">=3.7"
 test = ["pytest (>=6)"]
 
 [[package]]
+name = "faker"
+version = "19.6.2"
+description = "Faker is a Python package that generates fake data for you."
+category = "main"
+optional = false
+python-versions = ">=3.8"
+
+[package.dependencies]
+python-dateutil = ">=2.4"
+
+[[package]]
 name = "fastapi"
 version = "0.100.1"
 description = "FastAPI framework, high performance, easy to learn, fast to code, ready for production"
@@ -1046,6 +1057,17 @@ pytest = ">=7.3.1"
 test = ["coverage (>=7.2.7)", "pytest-mock (>=3.10)"]
 
 [[package]]
+name = "python-dateutil"
+version = "2.8.2"
+description = "Extensions to the standard Python datetime module"
+category = "main"
+optional = false
+python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,>=2.7"
+
+[package.dependencies]
+six = ">=1.5"
+
+[[package]]
 name = "python-dotenv"
 version = "1.0.0"
 description = "Read key-value pairs from a .env file and set them as environment variables"
@@ -1114,6 +1136,14 @@ pygments = ">=2.13.0,<3.0.0"
 
 [package.extras]
 jupyter = ["ipywidgets (>=7.5.1,<9)"]
+
+[[package]]
+name = "six"
+version = "1.16.0"
+description = "Python 2 and 3 compatibility utilities"
+category = "main"
+optional = false
+python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*"
 
 [[package]]
 name = "smmap"
@@ -1351,7 +1381,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "3d3485d3caa11b73b00880247159f7ddd44d6a16427ae2f43736a021905f777c"
+content-hash = "1ae95119ab6f687fecf27ff3b2f2b5d0ad2a40b471d6fb3c7235ef5831e36165"
 
 [metadata.files]
 alembic = []
@@ -1378,6 +1408,7 @@ docutils = []
 email-validator = []
 eradicate = []
 exceptiongroup = []
+faker = []
 fastapi = []
 fastapi-users = []
 fastapi-users-db-sqlalchemy = []
@@ -1439,12 +1470,14 @@ pyjwt = []
 pytest = []
 pytest-cov = []
 pytest-env = []
+python-dateutil = []
 python-dotenv = []
 python-multipart = []
 pyyaml = []
 restructuredtext-lint = []
 rfc3986 = []
 rich = []
+six = []
 smmap = []
 sniffio = []
 snowballstemmer = []

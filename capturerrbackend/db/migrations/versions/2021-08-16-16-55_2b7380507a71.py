@@ -1,3 +1,4 @@
+# type: ignore
 """Created Dummy Model.
 
 Revision ID: 2b7380507a71

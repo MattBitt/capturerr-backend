@@ -26,6 +26,7 @@ alembic = "^1.11.1"
 asyncpg = {version = "^0.28.0", extras = ["sa"]}
 httptools = "^0.6.0"
 loguru = "^0.7.0"
+Faker = "^19.6.2"
 
 
 [tool.poetry.dev-dependencies]
