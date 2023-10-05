@@ -6,9 +6,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from capturerrbackend.db.dependencies import get_db_session
 from capturerrbackend.db.models.bar_model import BarModel
-from capturerrbackend.db.models.foo_model import (  # need this for the db relationship to work
-    FooModel,
-)
 
 
 class BarDAO:

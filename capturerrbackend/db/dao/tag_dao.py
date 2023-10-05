@@ -5,9 +5,6 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from capturerrbackend.db.dependencies import get_db_session
-from capturerrbackend.db.models.capture_model import (  # need this for the db relationship to work
-    CaptureModel,
-)
 from capturerrbackend.db.models.tag_model import TagModel
 
 
@@ -54,3 +51,14 @@ class TagDAO:
             query = query.where(TagModel.title == title)
         rows = await self.session.execute(query)
         return list(rows.scalars().fetchall())
+
+    async def get_or_create(
+        self,
+        name: str,
+    ) -> TagModel:
+        tag = await self.filter(title=name)
+        if tag is None or tag == []:
+            await self.create_tag_model(title=name)
+            tag = await self.filter(title=name)
+
+        return tag[0]

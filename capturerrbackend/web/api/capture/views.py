@@ -49,21 +49,15 @@ async def create_capture_model(
     return new_capture[0]  # type: ignore
 
 
-@router.put("/{capture_id}/{tag_title}", response_model=CaptureModelDTO)
+@router.put("/{capture_id}/{tag_name}", response_model=CaptureModelDTO)
 async def add_tag_to_capture(
     capture_id: int,
-    tag_title: str,
+    tag_name: str,
     capture_dao: CaptureDAO = Depends(),
     tag_dao: TagDAO = Depends(),
 ) -> CaptureModelDTO:
     capture = await capture_dao.get_by_id(id=capture_id)
-    if capture is None:
-        raise FileNotFoundError
-
-    tag = await tag_dao.filter(title=tag_title)
-    if tag is None or tag == []:
-        await tag_dao.create_tag_model(title=tag_title)
-        tag = await tag_dao.filter(title=tag_title)
-    capture.tags.append(tag[0])
+    tag = await tag_dao.get_or_create(name=tag_name)
+    capture.tags.append(tag)  # type: ignore
 
     return capture  # type: ignore

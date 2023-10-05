@@ -44,13 +44,13 @@ repos:
     language: system
     types: [python]
 
-  - id: flake8
-    name: Check with Flake8
-    entry: poetry run flake8
+  - id: ruff
+    name: Check with ruff
+    entry: poetry run ruff
     language: system
     pass_filenames: false
     types: [python]
-    args: [--count, .]
+    args: [--fix, .]
 
   - id: mypy
     name: Validate types with MyPy

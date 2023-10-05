@@ -41,7 +41,7 @@ class Settings(BaseSettings):
     log_level: LogLevel = LogLevel.INFO
     users_secret: str = os.getenv("USERS_SECRET", "")
     # Variables for the database
-    db_host: str = "192.168.0.116"
+    db_host: str = "localhost"
     db_port: int = 5432
     db_user: str = "postgres"
     db_pass: str = "postgres"

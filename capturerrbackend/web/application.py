@@ -10,6 +10,8 @@ from capturerrbackend.web.lifetime import (
     register_startup_event,
 )
 
+from .middlewares import add_middleware
+
 
 def get_app() -> FastAPI:
     """
@@ -36,4 +38,7 @@ def get_app() -> FastAPI:
     # Main router for the API.
     app.include_router(router=api_router, prefix="/api")
 
-    return app
+    # Adds middlewares.
+    _app = add_middleware(app)
+
+    return _app

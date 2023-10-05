@@ -63,7 +63,7 @@ async def test_add_tag_to_capture(
     assert capture is not None
     assert capture is not []
     assert capture[0].name == test_capture
-    # url = f"{str(fastapi_app.url_path_for('add_tag_to_capture', str))}/{capture.id}/{test_tag}"
+
     url = f"/api/capture/{capture[0].id}/{test_tag}"
     response = await client.put(url)
     assert response.status_code == status.HTTP_200_OK

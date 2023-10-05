@@ -63,7 +63,7 @@ async def test_add_bar_to_foo(
     assert foo is not None
     assert foo is not []
     assert foo[0].name == test_foo
-    # url = f"{str(fastapi_app.url_path_for('add_bar_to_foo', str))}/{foo.id}/{test_bar}"
+
     url = f"/api/foo/{foo[0].id}/{test_bar}"
     response = await client.put(url)
     assert response.status_code == status.HTTP_200_OK

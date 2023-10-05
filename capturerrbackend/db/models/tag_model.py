@@ -1,6 +1,5 @@
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy.sql.sqltypes import String
 
 from capturerrbackend.db.base import Base
 from capturerrbackend.db.models.capture_tag import capture_tag
