@@ -1,3 +1,5 @@
+# type: ignore
+
 """added captures and tags
 
 Revision ID: ffc6fac79905

@@ -3,8 +3,8 @@ from importlib import metadata
 from fastapi import FastAPI
 from fastapi.responses import UJSONResponse
 
+from capturerrbackend.api.router import api_router
 from capturerrbackend.logging import configure_logging
-from capturerrbackend.web.api.router import api_router
 from capturerrbackend.web.lifetime import (
     register_shutdown_event,
     register_startup_event,

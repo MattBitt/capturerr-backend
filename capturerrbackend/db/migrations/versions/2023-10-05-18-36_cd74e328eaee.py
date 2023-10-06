@@ -1,3 +1,4 @@
+# type: ignore
 """adding timestamp mixin
 
 Revision ID: cd74e328eaee

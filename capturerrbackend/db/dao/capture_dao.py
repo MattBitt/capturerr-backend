@@ -6,21 +6,25 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from capturerrbackend.db.dependencies import get_db_session
 from capturerrbackend.db.models.capture_model import CaptureModel
+from capturerrbackend.db.models.users import User  # type: ignore
 
 
 class CaptureDAO:
     """Class for accessing capture table."""
 
-    def __init__(self, session: AsyncSession = Depends(get_db_session)):
+    def __init__(
+        self,
+        session: AsyncSession = Depends(get_db_session),
+    ):
         self.session = session
 
-    async def create_capture_model(self, name: str) -> None:
+    async def create_capture_model(self, text: str, user: User) -> None:
         """
         Add single capture to session.
 
-        :param name: name of a capture.
+        :param text: text of a capture.
         """
-        self.session.add(CaptureModel(name=name))
+        self.session.add(CaptureModel(text=text, user=user))
         await self.session.commit()
 
     async def get_all_captures(self, limit: int, offset: int) -> List[CaptureModel]:
@@ -39,17 +43,17 @@ class CaptureDAO:
 
     async def filter(
         self,
-        name: Optional[str] = None,
+        text: Optional[str] = None,
     ) -> List[CaptureModel]:
         """
         Get specific capture model.
 
-        :param name: name of capture instance.
+        :param text: text of capture instance.
         :return: capture models.
         """
         query = select(CaptureModel)
-        if name:
-            query = query.where(CaptureModel.name == name)
+        if text:
+            query = query.where(CaptureModel.text == text)
         rows = await self.session.execute(query)
         return list(rows.scalars().fetchall())
 
@@ -60,7 +64,7 @@ class CaptureDAO:
         """
         Get specific capture model.
 
-        :param name: name of capture instance.
+        :param text: text of capture instance.
         :return: capture models.
         """
         query = select(CaptureModel)

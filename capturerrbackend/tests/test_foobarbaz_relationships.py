@@ -3,9 +3,9 @@ from fastapi import FastAPI
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from capturerrbackend.core.factory import create_fake_bar, create_fake_foo
 from capturerrbackend.db.dao.bar_dao import BarDAO
 from capturerrbackend.db.dao.foo_dao import FooDAO
-from capturerrbackend.db.models.factory import create_fake_bar, create_fake_foo
 
 
 @pytest.mark.anyio

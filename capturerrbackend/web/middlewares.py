@@ -5,12 +5,18 @@ from loguru import logger
 def add_middleware(app: FastAPI) -> FastAPI:
     @app.middleware("http")
     async def api_logging(request: Request, call_next) -> Response:  # type: ignore
-        response = await call_next(request)
+        try:
+            response = await call_next(request)
+
+        except Exception as e:
+            logger.error(e)
+            raise e
         if "openapi.json" in request.url.path:
             return response
         response_body = b""
         async for chunk in response.body_iterator:
             response_body += chunk
+
         log_message = {
             "host": request.url.hostname,
             "endpoint": request.url.path,
