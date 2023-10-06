@@ -4,8 +4,8 @@ from fastapi import APIRouter
 from fastapi.param_functions import Depends
 
 from capturerrbackend.api.bar.schema import BarModelDTO, BarModelInputDTO
-from capturerrbackend.db.dao.bar_dao import BarDAO
-from capturerrbackend.db.models.bar_model import BarModel
+from capturerrbackend.dao.bar_dao import BarDAO
+from capturerrbackend.models.bar_model import BarModel
 
 router = APIRouter()
 

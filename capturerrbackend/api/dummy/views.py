@@ -4,8 +4,8 @@ from fastapi import APIRouter
 from fastapi.param_functions import Depends
 
 from capturerrbackend.api.dummy.schema import DummyModelDTO, DummyModelInputDTO
-from capturerrbackend.db.dao.dummy_dao import DummyDAO
-from capturerrbackend.db.models.dummy_model import DummyModel
+from capturerrbackend.dao.dummy_dao import DummyDAO
+from capturerrbackend.models.dummy_model import DummyModel
 
 router = APIRouter()
 

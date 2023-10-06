@@ -4,8 +4,8 @@ from fastapi import APIRouter
 from fastapi.param_functions import Depends
 
 from capturerrbackend.api.daz.schema import DazModelDTO, DazModelInputDTO
-from capturerrbackend.db.dao.daz_dao import DazDAO
-from capturerrbackend.db.models.daz_model import DazModel
+from capturerrbackend.dao.daz_dao import DazDAO
+from capturerrbackend.models.daz_model import DazModel
 
 router = APIRouter()
 

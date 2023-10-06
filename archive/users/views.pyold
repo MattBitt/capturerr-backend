@@ -1,10 +1,10 @@
 from fastapi import APIRouter
 
-from capturerrbackend.db.models.users import UserCreate  # type: ignore
-from capturerrbackend.db.models.users import UserRead  # type: ignore
-from capturerrbackend.db.models.users import UserUpdate  # type: ignore
-from capturerrbackend.db.models.users import api_users  # type: ignore
-from capturerrbackend.db.models.users import auth_jwt  # type: ignore
+from capturerrbackend.models.users import UserCreate  # type: ignore
+from capturerrbackend.models.users import UserRead  # type: ignore
+from capturerrbackend.models.users import UserUpdate  # type: ignore
+from capturerrbackend.models.users import api_users  # type: ignore
+from capturerrbackend.models.users import auth_jwt  # type: ignore
 
 router = APIRouter()
 

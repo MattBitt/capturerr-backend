@@ -18,7 +18,7 @@ from sqlalchemy.orm import Mapped, relationship
 
 from capturerrbackend.db.base import Base
 from capturerrbackend.db.dependencies import get_db_session
-from capturerrbackend.db.models.capture_model import CaptureModel
+from capturerrbackend.models.capture_model import CaptureModel
 from capturerrbackend.settings import settings
 
 
