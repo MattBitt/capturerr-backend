@@ -3,7 +3,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict
 
-from capturerrbackend.api.tag.schema import TagModelDTO
+from capturerrbackend.app.schemas.requests.tags import TagModelDTO
 
 
 class CaptureModelDTO(BaseModel):

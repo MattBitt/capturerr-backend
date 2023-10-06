@@ -5,9 +5,9 @@ from fastapi.param_functions import Depends
 from loguru import logger
 
 from capturerrbackend.api.foo.schema import FooModelDTO, FooModelInputDTO
-from capturerrbackend.dao.bar_dao import BarDAO
-from capturerrbackend.dao.foo_dao import FooDAO
-from capturerrbackend.models.foo_model import FooModel
+from capturerrbackend.app.dao.bar_dao import BarDAO
+from capturerrbackend.app.dao.foo_dao import FooDAO
+from capturerrbackend.app.models.foo_model import FooModel
 
 router = APIRouter()
 

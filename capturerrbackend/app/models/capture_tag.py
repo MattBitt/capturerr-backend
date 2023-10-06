@@ -1,6 +1,6 @@
 from sqlalchemy import Column, ForeignKey, Table
 
-from capturerrbackend.models.base import Base
+from capturerrbackend.app.models.base import Base
 
 capture_tag = Table(
     "capture_tags",

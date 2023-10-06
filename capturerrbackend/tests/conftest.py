@@ -12,8 +12,8 @@ from sqlalchemy.ext.asyncio import (
 
 from capturerrbackend.app.application import get_app
 from capturerrbackend.app.settings import settings
-from capturerrbackend.db.dependencies import get_db_session
-from capturerrbackend.db.utils import create_database, drop_database
+from capturerrbackend.core.db.dependencies import get_db_session
+from capturerrbackend.core.db.utils import create_database, drop_database
 
 
 @pytest.fixture(scope="session")
@@ -33,8 +33,8 @@ async def _engine() -> AsyncGenerator[AsyncEngine, None]:
 
     :yield: new engine.
     """
-    from capturerrbackend.db.meta import meta  # noqa: WPS433
-    from capturerrbackend.models import load_all_models  # noqa: WPS433
+    from capturerrbackend.app.models import load_all_models  # noqa: WPS433
+    from capturerrbackend.core.db.meta import meta  # noqa: WPS433
 
     load_all_models()
 

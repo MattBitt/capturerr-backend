@@ -16,9 +16,9 @@ from fastapi_users.db import SQLAlchemyBaseUserTableUUID, SQLAlchemyUserDatabase
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Mapped, relationship
 
-from capturerrbackend.db.base import Base
-from capturerrbackend.db.dependencies import get_db_session
-from capturerrbackend.models.capture_model import CaptureModel
+from capturerrbackend.core.db.base import Base
+from capturerrbackend.core.db.dependencies import get_db_session
+from capturerrbackend.app.models.capture_model import CaptureModel
 from capturerrbackend.settings import settings
 
 

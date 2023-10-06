@@ -4,8 +4,8 @@ from fastapi import Depends
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from capturerrbackend.db.dependencies import get_db_session
-from capturerrbackend.models.tag_model import TagModel
+from capturerrbackend.app.models.tag_model import TagModel
+from capturerrbackend.core.db.dependencies import get_db_session
 
 
 class TagDAO:

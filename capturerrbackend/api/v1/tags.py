@@ -3,9 +3,9 @@ from typing import List
 from fastapi import APIRouter
 from fastapi.param_functions import Depends
 
-from capturerrbackend.api.tag.schema import TagModelDTO, TagModelInputDTO
-from capturerrbackend.dao.tag_dao import TagDAO
-from capturerrbackend.models.tag_model import TagModel
+from capturerrbackend.app.dao.tag_dao import TagDAO
+from capturerrbackend.app.models.tag_model import TagModel
+from capturerrbackend.app.schemas.requests.tags import TagModelDTO, TagModelInputDTO
 
 router = APIRouter()
 

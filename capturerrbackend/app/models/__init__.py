@@ -8,7 +8,7 @@ def load_all_models() -> None:
     package_dir = Path(__file__).resolve().parent
     modules = pkgutil.walk_packages(
         path=[str(package_dir)],
-        prefix="capturerrbackend.models.",
+        prefix="capturerrbackend.app.models.",
     )
     for module in modules:
         __import__(module.name)  # noqa: WPS421

@@ -6,7 +6,7 @@ from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
 
-from capturerrbackend.dao.foo_dao import FooDAO
+from capturerrbackend.app.dao.foo_dao import FooDAO
 
 
 @pytest.mark.anyio

@@ -4,8 +4,8 @@ from fastapi import Depends
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from capturerrbackend.db.dependencies import get_db_session
-from capturerrbackend.models.dummy_model import DummyModel
+from capturerrbackend.app.models.dummy_model import DummyModel
+from capturerrbackend.core.db.dependencies import get_db_session
 
 
 class DummyDAO:

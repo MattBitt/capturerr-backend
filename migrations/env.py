@@ -5,9 +5,9 @@ from alembic import context
 from sqlalchemy.ext.asyncio.engine import create_async_engine
 from sqlalchemy.future import Connection
 
+from capturerrbackend.app.models import load_all_models
 from capturerrbackend.app.settings import settings
-from capturerrbackend.db.meta import meta
-from capturerrbackend.models import load_all_models
+from capturerrbackend.core.db.meta import meta
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

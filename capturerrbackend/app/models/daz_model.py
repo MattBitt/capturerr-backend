@@ -1,7 +1,7 @@
 from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
 
-from capturerrbackend.models.base import Base
+from capturerrbackend.app.models.base import Base
 
 
 class DazModel(Base):

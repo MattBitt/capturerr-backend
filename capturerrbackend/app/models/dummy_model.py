@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql.sqltypes import String
 
-from capturerrbackend.models.base import Base
+from capturerrbackend.app.models.base import Base
 
 
 class DummyModel(Base):

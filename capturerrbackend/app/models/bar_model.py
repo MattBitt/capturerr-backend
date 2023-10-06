@@ -1,8 +1,8 @@
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import Mapped, backref, mapped_column, relationship
 
-from capturerrbackend.models.bar_foo import bar_foo
-from capturerrbackend.models.base import Base
+from capturerrbackend.app.models.bar_foo import bar_foo
+from capturerrbackend.app.models.base import Base
 
 
 class BarModel(Base):

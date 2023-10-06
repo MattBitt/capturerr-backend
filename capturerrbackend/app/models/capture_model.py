@@ -4,8 +4,8 @@ from uuid import UUID, uuid4
 from sqlalchemy import Boolean, Column, DateTime, Float, String, Uuid
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from capturerrbackend.models.base import Base
-from capturerrbackend.models.capture_tag import capture_tag
+from capturerrbackend.app.models.base import Base
+from capturerrbackend.app.models.capture_tag import capture_tag
 
 
 class CaptureModel(Base):
