@@ -1,7 +1,7 @@
 from pydantic import BaseModel, ConfigDict
 
 
-class TagModelDTO(BaseModel):
+class TagResponse(BaseModel):
     """
     DTO for tag models.
 
@@ -11,9 +11,3 @@ class TagModelDTO(BaseModel):
     id: int
     title: str
     model_config = ConfigDict(from_attributes=True)
-
-
-class TagModelInputDTO(BaseModel):
-    """DTO for creating new tag model."""
-
-    title: str

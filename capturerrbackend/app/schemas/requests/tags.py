@@ -1,19 +1,7 @@
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel
 
 
-class TagModelDTO(BaseModel):
-    """
-    DTO for tag models.
-
-    It returned when accessing tag models from the API.
-    """
-
-    id: int
-    title: str
-    model_config = ConfigDict(from_attributes=True)
-
-
-class TagModelInputDTO(BaseModel):
+class TagRequest(BaseModel):
     """DTO for creating new tag model."""
 
     title: str

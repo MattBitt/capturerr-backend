@@ -5,12 +5,13 @@ from fastapi.param_functions import Depends
 
 from capturerrbackend.app.dao.tag_dao import TagDAO
 from capturerrbackend.app.models.tag_model import TagModel
-from capturerrbackend.app.schemas.requests.tags import TagModelDTO, TagModelInputDTO
+from capturerrbackend.app.schemas.requests.tags import TagRequest
+from capturerrbackend.app.schemas.responses.tags import TagResponse
 
 router = APIRouter()
 
 
-@router.get("/", response_model=List[TagModelDTO])
+@router.get("/", response_model=List[TagResponse])
 async def get_tag_models(
     limit: int = 10,
     offset: int = 0,
@@ -29,7 +30,7 @@ async def get_tag_models(
 
 @router.put("/")
 async def create_tag_model(
-    new_tag_object: TagModelInputDTO,
+    new_tag_object: TagRequest,
     tag_dao: TagDAO = Depends(),
 ) -> None:
     """

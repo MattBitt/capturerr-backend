@@ -7,15 +7,13 @@ from loguru import logger
 from capturerrbackend.app.dao.capture_dao import CaptureDAO
 from capturerrbackend.app.dao.tag_dao import TagDAO
 from capturerrbackend.app.models.capture_model import CaptureModel
-from capturerrbackend.app.schemas.responses.capture_schema import (
-    CaptureModelDTO,
-    CaptureModelInputDTO,
-)
+from capturerrbackend.app.schemas.requests.captures import CaptureRequest
+from capturerrbackend.app.schemas.responses.captures import CaptureResponse
 
 router = APIRouter()
 
 
-@router.get("/", response_model=List[CaptureModelDTO])
+@router.get("/", response_model=List[CaptureResponse])
 async def get_capture_models(
     limit: int = 10,
     offset: int = 0,
@@ -36,9 +34,9 @@ async def get_capture_models(
 
 @router.put("/")
 async def create_capture_model(
-    new_capture_object: CaptureModelInputDTO,
+    new_capture_object: CaptureRequest,
     capture_dao: CaptureDAO = Depends(),
-) -> CaptureModelDTO:
+) -> CaptureResponse:
     """
     Creates capture model in the database.
 
@@ -51,13 +49,13 @@ async def create_capture_model(
     return new_capture[0]  # type: ignore
 
 
-@router.put("/{capture_id}/{tag_name}", response_model=CaptureModelDTO)
+@router.put("/{capture_id}/{tag_name}", response_model=CaptureResponse)
 async def add_tag_to_capture(
     capture_id: int,
     tag_name: str,
     capture_dao: CaptureDAO = Depends(),
     tag_dao: TagDAO = Depends(),
-) -> CaptureModelDTO:
+) -> CaptureResponse:
     capture = await capture_dao.get_by_id(id=capture_id)
     tag = await tag_dao.get_or_create(name=tag_name)
     capture.tags.append(tag)  # type: ignore
