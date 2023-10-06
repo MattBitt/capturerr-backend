@@ -1,12 +1,11 @@
 from datetime import datetime
 from uuid import UUID, uuid4
 
-from sqlalchemy import Boolean, Column, DateTime, Float, ForeignKey, String, Uuid
+from sqlalchemy import Boolean, Column, DateTime, Float, String, Uuid
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from capturerrbackend.db.base import Base
 from capturerrbackend.db.models.capture_tag import capture_tag
-from capturerrbackend.db.models.users import User  # type: ignore
 
 
 class CaptureModel(Base):
@@ -22,7 +21,7 @@ class CaptureModel(Base):
     text: Mapped[str] = mapped_column(String(length=200))  # noqa: WPS432
     notes: Mapped[str] = mapped_column(String(length=200), nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
-    flagged: Mapped[bool] = mapped_column(Boolean, default=False)
+    flagged: Mapped[bool] = mapped_column(Boolean, default=True)
     priority: Mapped[str] = mapped_column(String(length=50), nullable=True)
     captured_time: Mapped[datetime] = mapped_column(
         DateTime,
@@ -42,8 +41,8 @@ class CaptureModel(Base):
         lazy="selectin",
     )
 
-    user_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey("user.id"))
-    user: Mapped["User"] = relationship(back_populates="captures")
+    # user_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey("user.id"), nullable=True)
+    # user: Mapped["User"] = relationship(back_populates="captures")  # type: ignore
 
     # dazs = relationship(
     #     "DazModel",

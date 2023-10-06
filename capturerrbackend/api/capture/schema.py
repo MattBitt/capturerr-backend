@@ -4,7 +4,6 @@ from uuid import UUID
 from pydantic import BaseModel, ConfigDict
 
 from capturerrbackend.api.tag.schema import TagModelDTO
-from capturerrbackend.db.models.users import UserRead  # type: ignore
 
 
 class CaptureModelDTO(BaseModel):
@@ -25,7 +24,7 @@ class CaptureModelDTO(BaseModel):
     happend_at: Optional[str] = None
     captured_longitude: Optional[float] = None
     captured_latitude: Optional[float] = None
-    user: Optional[UserRead] = None
+    # user: Optional[UserRead] = None
     tags: Optional[list[TagModelDTO]] = None
 
     model_config = ConfigDict(from_attributes=True)
@@ -34,8 +33,8 @@ class CaptureModelDTO(BaseModel):
 class CaptureModelInputDTO(BaseModel):
     """DTO for creating new capture model."""
 
-    user_id: Optional[UUID] = None
-    user: Optional[UserRead] = None
+    # user_id: Optional[UUID] = None
+    # user: Optional[UserRead] = None
     text: str
     notes: Optional[str] = ""
     is_active: Optional[bool] = True

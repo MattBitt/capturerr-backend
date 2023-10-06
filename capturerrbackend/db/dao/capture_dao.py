@@ -6,7 +6,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from capturerrbackend.db.dependencies import get_db_session
 from capturerrbackend.db.models.capture_model import CaptureModel
-from capturerrbackend.db.models.users import User  # type: ignore
+
+# type: ignore
 
 
 class CaptureDAO:
@@ -18,13 +19,14 @@ class CaptureDAO:
     ):
         self.session = session
 
-    async def create_capture_model(self, text: str, user: User) -> None:
+    async def create_capture_model(self, text: str) -> None:  # type: ignore
         """
         Add single capture to session.
 
         :param text: text of a capture.
         """
-        self.session.add(CaptureModel(text=text, user=user))
+        cap = CaptureModel(text=text)
+        self.session.add(cap)
         await self.session.commit()
 
     async def get_all_captures(self, limit: int, offset: int) -> List[CaptureModel]:

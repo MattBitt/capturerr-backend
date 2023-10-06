@@ -92,10 +92,6 @@ def fastapi_app(
     """
     application = get_app()
     application.dependency_overrides[get_db_session] = lambda: dbsession
-
-    # this should probably be a function that creates a user in the db and returns it
-    # application.dependency_overrides[current_active_user] = lambda: None
-
     return application  # noqa: WPS331
 
 

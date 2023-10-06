@@ -7,9 +7,8 @@ def add_middleware(app: FastAPI) -> FastAPI:
     async def api_logging(request: Request, call_next) -> Response:  # type: ignore
         try:
             response = await call_next(request)
-
         except Exception as e:
-            logger.error(e)
+            logger.exception(e)
             raise e
         if "openapi.json" in request.url.path:
             return response

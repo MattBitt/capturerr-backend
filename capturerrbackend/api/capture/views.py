@@ -8,10 +8,6 @@ from capturerrbackend.api.capture.schema import CaptureModelDTO, CaptureModelInp
 from capturerrbackend.db.dao.capture_dao import CaptureDAO
 from capturerrbackend.db.dao.tag_dao import TagDAO
 from capturerrbackend.db.models.capture_model import CaptureModel
-from capturerrbackend.db.models.users import (  # type: ignore
-    UserRead,
-    current_active_user,
-)
 
 router = APIRouter()
 
@@ -39,7 +35,6 @@ async def get_capture_models(
 async def create_capture_model(
     new_capture_object: CaptureModelInputDTO,
     capture_dao: CaptureDAO = Depends(),
-    user: UserRead = Depends(current_active_user),
 ) -> CaptureModelDTO:
     """
     Creates capture model in the database.
@@ -47,7 +42,8 @@ async def create_capture_model(
     :param new_capture_object: new capture model item.
     :param capture_dao: DAO for capture models.
     """
-    await capture_dao.create_capture_model(text=new_capture_object.text, user=user)
+
+    await capture_dao.create_capture_model(text=new_capture_object.text)
     new_capture = await capture_dao.filter(text=new_capture_object.text)
     return new_capture[0]  # type: ignore
 
