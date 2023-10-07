@@ -1,7 +1,7 @@
 from datetime import datetime
 from uuid import UUID, uuid4
 
-from sqlalchemy import Boolean, Column, DateTime, Float, String, Uuid
+from sqlalchemy import Boolean, Column, DateTime, Float, Integer, String, Uuid
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from capturerrbackend.app.models.base import Base
@@ -40,7 +40,7 @@ class CaptureModel(Base):
         uselist=True,
         lazy="selectin",
     )
-
+    user_id: Mapped[int] = mapped_column(Integer, nullable=True)
     # user_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey("user.id"), nullable=True)
     # user: Mapped["User"] = relationship(back_populates="captures")  # type: ignore
 

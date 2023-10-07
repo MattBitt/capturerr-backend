@@ -11,7 +11,7 @@ router = APIRouter()
 user_repo = UserRepo()
 
 
-@router.get("/users/me/", response_model=UserResponse)
+@router.get("/me/", response_model=UserResponse)
 async def read_users_me(
     current_user: Annotated[UserRequest, Depends(get_current_active_user)],
 ) -> UserResponse:

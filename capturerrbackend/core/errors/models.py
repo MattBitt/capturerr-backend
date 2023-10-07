@@ -14,16 +14,6 @@ from starlette import status
 
 from capturerrbackend.core.base.error import BaseError
 
-__all__ = (
-    "BaseError",
-    "BadRequestError",
-    "UnprocessableError",
-    "NotFoundError",
-    "DatabaseError",
-    "AuthenticationError",
-    "AuthorizationError",
-)
-
 
 class BadRequestError(BaseError):
     def __init__(self, *_: tuple[Any], message: str = "Bad request") -> None:

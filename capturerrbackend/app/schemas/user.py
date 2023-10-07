@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from pydantic import BaseModel
 
 
@@ -13,9 +11,9 @@ class User(BaseModel):
 
 class UserInDB(User):
     id: int
-    hashed_password: str
-    created_at: datetime
-    updated_at: datetime
+    hashed_password: str = ""
+    # created_at: datetime
+    # updated_at: datetime
 
 
 class UserRequest(User):

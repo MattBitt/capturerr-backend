@@ -19,13 +19,13 @@ class CaptureDAO:
     ):
         self.session = session
 
-    async def create_capture_model(self, text: str) -> None:  # type: ignore
+    async def create_capture_model(self, text: str, user) -> None:  # type: ignore
         """
         Add single capture to session.
 
         :param text: text of a capture.
         """
-        cap = CaptureModel(text=text)
+        cap = CaptureModel(text=text, user_id=user.id)
         self.session.add(cap)
         await self.session.commit()
 

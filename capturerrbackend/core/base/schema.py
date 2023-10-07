@@ -1,8 +1,6 @@
 from collections.abc import Mapping
 from typing import Any, Generic
 
-from pydantic.generics import GenericModel
-
 from capturerrbackend.core.base.model import PublicModel, _PublicModel
 
 __all__ = (
@@ -12,13 +10,13 @@ __all__ = (
 )
 
 
-class ResponseMulti(PublicModel, GenericModel, Generic[_PublicModel]):  # type: ignore
+class ResponseMulti(PublicModel, Generic[_PublicModel]):  # type: ignore
     """Generic response model that consist multiple results."""
 
     result: list[_PublicModel]
 
 
-class Response(PublicModel, GenericModel, Generic[_PublicModel]):  # type: ignore
+class Response(PublicModel, Generic[_PublicModel]):  # type: ignore
     """Generic response model that consist only one result."""
 
     result: _PublicModel

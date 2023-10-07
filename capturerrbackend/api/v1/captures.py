@@ -1,4 +1,4 @@
-from typing import List
+from typing import Annotated, List
 
 from fastapi import APIRouter
 from fastapi.param_functions import Depends
@@ -9,15 +9,18 @@ from capturerrbackend.app.dao.tag_dao import TagDAO
 from capturerrbackend.app.models.capture_model import CaptureModel
 from capturerrbackend.app.schemas.requests.captures import CaptureRequest
 from capturerrbackend.app.schemas.responses.captures import CaptureResponse
+from capturerrbackend.app.schemas.user import UserRequest
+from capturerrbackend.app.services.users import get_current_active_user
 
 router = APIRouter()
 
 
 @router.get("/", response_model=List[CaptureResponse])
 async def get_capture_models(
+    current_user: Annotated[UserRequest, Depends(get_current_active_user)],
+    capture_dao: CaptureDAO = Depends(),
     limit: int = 10,
     offset: int = 0,
-    capture_dao: CaptureDAO = Depends(),
 ) -> List[CaptureModel]:
     """
     Retrieve all capture objects from the database.
@@ -27,13 +30,13 @@ async def get_capture_models(
     :param capture_dao: DAO for capture models.
     :return: list of capture objects from database.
     """
-
     logger.debug("Getting all capture models.")
     return await capture_dao.get_all_captures(limit=limit, offset=offset)
 
 
 @router.put("/")
 async def create_capture_model(
+    current_user: Annotated[UserRequest, Depends(get_current_active_user)],
     new_capture_object: CaptureRequest,
     capture_dao: CaptureDAO = Depends(),
 ) -> CaptureResponse:
@@ -44,7 +47,10 @@ async def create_capture_model(
     :param capture_dao: DAO for capture models.
     """
 
-    await capture_dao.create_capture_model(text=new_capture_object.text)
+    await capture_dao.create_capture_model(
+        text=new_capture_object.text,
+        user=current_user,
+    )
     new_capture = await capture_dao.filter(text=new_capture_object.text)
     return new_capture[0]  # type: ignore
 

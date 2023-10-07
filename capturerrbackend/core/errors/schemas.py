@@ -22,4 +22,4 @@ class ErrorResponse(PublicModel):
 class ErrorResponseMulti(PublicModel):
     """The public error respnse model that includes multiple objects."""
 
-    results: conlist(ErrorResponse, min_items=1)  # type: ignore
+    results: conlist(ErrorResponse, min_length=1)  # type: ignore

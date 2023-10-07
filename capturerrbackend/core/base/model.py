@@ -12,7 +12,6 @@ __all__ = (
     "_InternalModel",
     "PublicModel",
     "_PublicModel",
-    "FrozenModel",
 )
 
 
@@ -26,20 +25,19 @@ def to_camelcase(string: str) -> str:
     return resp
 
 
-class FrozenModel(BaseModel):
-    class Config:
-        orm_mode = True
-        use_enum_values = True
-        allow_population_by_field_name = True
-        arbitrary_types_allowed = True
-        allow_mutation = False
+# class FrozenModel(BaseModel):
+#     class Config:
+#         from_attributes = True
+#         use_enum_values = True
+#         populate_by_name = True
+#         arbitrary_types_allowed = True
 
 
 class InternalModel(BaseModel):
     class Config:
-        orm_mode = True
+        from_attributes = True
         use_enum_values = True
-        allow_population_by_field_name = True
+        populate_by_name = True
         validate_assignment = True
         arbitrary_types_allowed = True
 
@@ -49,11 +47,11 @@ _InternalModel = TypeVar("_InternalModel", bound=InternalModel)
 
 class PublicModel(BaseModel):
     class Config:
-        orm_mode = True
+        from_attributes = True
         use_enum_values = True
         validate_assignment = True
         alias_generator = to_camelcase
-        allow_population_by_field_name = True
+        populate_by_name = True
         arbitrary_types_allowed = True
 
     def encoded_dict(self, by_alias: bool = True) -> dict[str, str]:
