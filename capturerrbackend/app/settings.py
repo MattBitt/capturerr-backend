@@ -40,6 +40,13 @@ class Settings(BaseSettings):
 
     log_level: LogLevel = LogLevel.INFO
     users_secret: str = os.getenv("USERS_SECRET", "")
+
+    # to get a string like this run:
+    # openssl rand -hex 32
+    secret_key: str = "pleasechangeme"
+    algorithim: str = "HS256"
+    access_token_expire_minutes: int = 30
+
     # Variables for the database
     db_host: str = "localhost"
     db_port: int = 5432

@@ -46,7 +46,7 @@ start: ## Starts the server
 	$(eval include .env)
 	$(eval export $(sh sed 's/=.*//' .env))
 
-	poetry run python -m capturerrbackend
+	poetry run python -m capturerrbackend.app
 
 .PHONY: migrate
 migrate: ## Run the migrations

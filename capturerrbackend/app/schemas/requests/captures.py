@@ -1,6 +1,6 @@
 from typing import Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 from capturerrbackend.app.schemas.requests.tags import TagRequest
 
@@ -8,6 +8,8 @@ from capturerrbackend.app.schemas.requests.tags import TagRequest
 class CaptureRequest(BaseModel):
     """DTO for creating new capture model."""
 
+    # TODO not sure if i should be using this model_config
+    model_config = ConfigDict(from_attributes=True)
     # user_id: Optional[UUID] = None
     # user: Optional[UserRead] = None
     text: str

@@ -108,3 +108,11 @@ async def client(
     """
     async with AsyncClient(app=fastapi_app, base_url="http://test") as ac:
         yield ac
+
+
+@pytest.fixture()
+def test_user() -> dict[str, str]:
+    return {
+        "email": "test@example.com",
+        "password": "test",
+    }
