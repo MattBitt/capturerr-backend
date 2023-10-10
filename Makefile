@@ -99,6 +99,7 @@ check-format: ## Dry-run code formatter
 lint: ## Run linter
 ##	poetry run pylint ./api ./app ./core
 	poetry run ruff --fix .
+
 .PHONY: format
 format: ## Run code formatter
 	poetry run black ./

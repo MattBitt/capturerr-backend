@@ -10,7 +10,7 @@ class User(BaseModel):
 
 
 class UserInDB(User):
-    id: int
+    pk: int
     hashed_password: str = ""
     # created_at: datetime
     # updated_at: datetime

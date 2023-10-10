@@ -1,17 +1,14 @@
-from sqlalchemy import Column, DateTime, String, func
+from sqlalchemy import String
 from sqlalchemy.orm import Mapped, backref, mapped_column, relationship
 
 from capturerrbackend.app.models.bar_foo import bar_foo
-from capturerrbackend.app.models.base import Base
+from capturerrbackend.core.base.model import Base
 
 
 class FooModel(Base):
     __tablename__ = "foos"
 
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column(String(length=200))  # noqa: WPS432
-    created_at = Column(DateTime(), server_default=func.now())
-    updated_at = Column(DateTime(), onupdate=func.now())
 
     bars = relationship(
         "BarModel",
@@ -29,4 +26,4 @@ class FooModel(Base):
     )
 
     def __repr__(self) -> str:
-        return f"Foo(id={self.id} name={self.name}"
+        return f"Foo(pk={self.pk} name={self.name}"

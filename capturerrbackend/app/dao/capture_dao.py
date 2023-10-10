@@ -25,7 +25,7 @@ class CaptureDAO:
 
         :param text: text of a capture.
         """
-        cap = CaptureModel(text=text, user_id=user.id)
+        cap = CaptureModel(text=text, user_pk=user.get("pk"))
         self.session.add(cap)
         await self.session.commit()
 
@@ -59,9 +59,9 @@ class CaptureDAO:
         rows = await self.session.execute(query)
         return list(rows.scalars().fetchall())
 
-    async def get_by_id(
+    async def get_by_pk(
         self,
-        id: int,
+        pk: int,
     ) -> Optional[CaptureModel]:
         """
         Get specific capture model.
@@ -70,7 +70,7 @@ class CaptureDAO:
         :return: capture models.
         """
         query = select(CaptureModel)
-        if id:
-            query = query.where(CaptureModel.id == id)
+        if pk:
+            query = query.where(CaptureModel.pk == pk)
         rows = await self.session.execute(query)
         return rows.scalars().first()

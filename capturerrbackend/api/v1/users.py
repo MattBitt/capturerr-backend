@@ -2,7 +2,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends
 
-from capturerrbackend.app.dao.users import UserRepo
+from capturerrbackend.app.repos.users import UserRepo
 from capturerrbackend.app.schemas.user import UserRequest, UserResponse
 from capturerrbackend.app.services.users import get_current_active_user
 
@@ -22,4 +22,4 @@ async def read_users_me(
 # async def read_own_items(
 #     current_user: Annotated[UserRequest, Depends(get_current_active_user)],
 # ):
-#     return [{"item_id": "Foo", "owner": current_user.username}]
+#     return [{"item_pk": "Foo", "owner": current_user.username}]

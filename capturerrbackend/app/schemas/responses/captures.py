@@ -13,8 +13,8 @@ class CaptureResponse(BaseModel):
     It returned when accessing capture models from the API.
     """
 
-    id: int
-    uuid: UUID
+    pk: int
+    uupk: UUID
     text: str
     notes: Optional[str] = ""
     is_active: Optional[bool] = True

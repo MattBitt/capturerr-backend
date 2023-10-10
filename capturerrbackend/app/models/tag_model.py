@@ -1,14 +1,13 @@
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from capturerrbackend.app.models.base import Base
 from capturerrbackend.app.models.capture_tag import capture_tag
+from capturerrbackend.core.base.model import Base
 
 
 class TagModel(Base):
     __tablename__ = "tags"
 
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     title: Mapped[str] = mapped_column(String(length=200))  # noqa: WPS432
     genre = Column(String())
     platform = Column(String())
@@ -31,7 +30,7 @@ class TagModel(Base):
 
     def __repr__(self) -> str:
         return (
-            f"Tag(id={self.id}, "
+            f"Tag(pk={self.pk}, "
             + f"title={self.title}, "
             + f"platform={self.platform})"
         )

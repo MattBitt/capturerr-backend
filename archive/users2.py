@@ -4,7 +4,7 @@ import random
 from fastapi import APIRouter, Body, Depends, HTTPException, Request, status
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 
-from capturerrbackend.app.dao.users import sessions, users
+from capturerrbackend.app.repos.users import sessions, users
 
 router = APIRouter()
 

@@ -8,6 +8,6 @@ class TagResponse(BaseModel):
     It returned when accessing tag models from the API.
     """
 
-    id: int
+    pk: int
     title: str
     model_config = ConfigDict(from_attributes=True)

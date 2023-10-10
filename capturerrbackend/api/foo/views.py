@@ -46,14 +46,14 @@ async def create_foo_model(
     return new_foo[0]  # type: ignore
 
 
-@router.put("/{foo_id}/{bar_title}", response_model=FooModelDTO)
+@router.put("/{foo_pk}/{bar_title}", response_model=FooModelDTO)
 async def add_bar_to_foo(
-    foo_id: int,
+    foo_pk: int,
     bar_title: str,
     foo_dao: FooDAO = Depends(),
     bar_dao: BarDAO = Depends(),
 ) -> FooModelDTO:
-    foo = await foo_dao.get_by_id(id=foo_id)
+    foo = await foo_dao.get_by_pk(pk=foo_pk)
     if foo is None:
         raise FileNotFoundError
 

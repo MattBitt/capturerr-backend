@@ -10,7 +10,7 @@ class CaptureRequest(BaseModel):
 
     # TODO not sure if i should be using this model_config
     model_config = ConfigDict(from_attributes=True)
-    # user_id: Optional[UUID] = None
+    # user_pk: Optional[UUID] = None
     # user: Optional[UserRead] = None
     text: str
     notes: Optional[str] = ""

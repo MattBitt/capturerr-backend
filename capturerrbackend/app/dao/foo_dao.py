@@ -52,9 +52,9 @@ class FooDAO:
         rows = await self.session.execute(query)
         return list(rows.scalars().fetchall())
 
-    async def get_by_id(
+    async def get_by_pk(
         self,
-        id: int,
+        pk: int,
     ) -> Optional[FooModel]:
         """
         Get specific foo model.
@@ -63,7 +63,7 @@ class FooDAO:
         :return: foo models.
         """
         query = select(FooModel)
-        if id:
-            query = query.where(FooModel.id == id)
+        if pk:
+            query = query.where(FooModel.pk == pk)
         rows = await self.session.execute(query)
         return rows.scalars().first()

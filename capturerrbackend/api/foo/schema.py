@@ -12,7 +12,7 @@ class FooModelDTO(BaseModel):
     It returned when accessing foo models from the API.
     """
 
-    id: int
+    pk: int
     name: str
     model_config = ConfigDict(from_attributes=True)
     bars: Optional[List[BarModelDTO]] = None

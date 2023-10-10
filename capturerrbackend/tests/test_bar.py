@@ -13,7 +13,7 @@ from capturerrbackend.app.dao.bar_dao import BarDAO
 async def test_creation(
     fastapi_app: FastAPI,
     client: AsyncClient,
-    dbsession: AsyncSession,
+    db_session: AsyncSession,
 ) -> None:
     """Tests bar instance creation."""
     url = fastapi_app.url_path_for("create_bar_model")
@@ -25,7 +25,7 @@ async def test_creation(
         },
     )
     assert response.status_code == status.HTTP_200_OK
-    dao = BarDAO(dbsession)
+    dao = BarDAO(db_session)
     instances = await dao.filter(title=test_title)
     assert instances[0].title == test_title
 
@@ -34,10 +34,10 @@ async def test_creation(
 async def test_getting(
     fastapi_app: FastAPI,
     client: AsyncClient,
-    dbsession: AsyncSession,
+    db_session: AsyncSession,
 ) -> None:
     """Tests bar instance retrieval."""
-    dao = BarDAO(dbsession)
+    dao = BarDAO(db_session)
     test_title = uuid.uuid4().hex
     await dao.create_bar_model(title=test_title)
     url = fastapi_app.url_path_for("get_bar_models")

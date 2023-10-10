@@ -8,7 +8,7 @@ class DummyModelDTO(BaseModel):
     It returned when accessing dummy models from the API.
     """
 
-    id: int
+    pk: int
     name: str
     model_config = ConfigDict(from_attributes=True)
 

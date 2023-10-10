@@ -12,7 +12,7 @@ from capturerrbackend.app.dao.capture_dao import CaptureDAO
 @pytest.mark.anyio
 async def test_creation(
     fastapi_app: FastAPI,
-    dbsession: AsyncSession,
+    db_session: AsyncSession,
     client: AsyncClient,
 ) -> None:
     """Tests capture instance creation."""
@@ -25,7 +25,7 @@ async def test_creation(
     )
 
     assert response.status_code == status.HTTP_200_OK
-    dao = CaptureDAO(dbsession)
+    dao = CaptureDAO(db_session)
     instances = await dao.filter(text=test_text)
     assert instances[0].text == test_text
 
@@ -34,10 +34,10 @@ async def test_creation(
 async def test_getting(
     fastapi_app: FastAPI,
     client: AsyncClient,
-    dbsession: AsyncSession,
+    db_session: AsyncSession,
 ) -> None:
     """Tests capture instance retrieval."""
-    CaptureDAO(dbsession)
+    CaptureDAO(db_session)
     test_text = uuid.uuid4().hex
     await client.get("/api/users/me")
     url = fastapi_app.url_path_for("create_capture_model")
@@ -53,17 +53,17 @@ async def test_getting(
     assert response.status_code == status.HTTP_200_OK
     new_capture = response.json()
     assert new_capture[0]["text"] == test_text
-    assert new_capture[0]["id"] is not None
+    assert new_capture[0]["pk"] is not None
 
 
 # @pytest.mark.anyio
 # async def test_add_tag_to_capture(
 #     fastapi_app: FastAPI,
 #     client: AsyncClient,
-#     dbsession: AsyncSession,
+#     db_session: AsyncSession,
 # ) -> None:
 #     """Tests capture instance retrieval."""
-#     dao = CaptureDAO(dbsession)
+#     dao = CaptureDAO(db_session)
 #     test_capture = uuid.uuid4().hex
 #     test_tag = uuid.uuid4().hex
 
@@ -73,11 +73,11 @@ async def test_getting(
 #     assert capture is not []
 #     assert capture[0].text == test_capture
 
-#     url = f"/api/capture/{capture[0].id}/{test_tag}"
+#     url = f"/api/capture/{capture[0].pk}/{test_tag}"
 #     response = await client.put(url)
 #     assert response.status_code == status.HTTP_200_OK
 #     new_capture = response.json()
 #     assert new_capture["text"] == test_capture
-#     assert new_capture["id"] is not None
+#     assert new_capture["pk"] is not None
 #     assert new_capture["tags"] is not None
 #     assert new_capture["tags"][0]["title"] == test_tag

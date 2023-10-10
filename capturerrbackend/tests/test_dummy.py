@@ -13,7 +13,7 @@ from capturerrbackend.app.dao.dummy_dao import DummyDAO
 async def test_creation(
     fastapi_app: FastAPI,
     client: AsyncClient,
-    dbsession: AsyncSession,
+    db_session: AsyncSession,
 ) -> None:
     """Tests dummy instance creation."""
     url = fastapi_app.url_path_for("create_dummy_model")
@@ -25,7 +25,7 @@ async def test_creation(
         },
     )
     assert response.status_code == status.HTTP_200_OK
-    dao = DummyDAO(dbsession)
+    dao = DummyDAO(db_session)
     instances = await dao.filter(name=test_name)
     assert instances[0].name == test_name
 
@@ -34,10 +34,10 @@ async def test_creation(
 async def test_getting(
     fastapi_app: FastAPI,
     client: AsyncClient,
-    dbsession: AsyncSession,
+    db_session: AsyncSession,
 ) -> None:
     """Tests dummy instance retrieval."""
-    dao = DummyDAO(dbsession)
+    dao = DummyDAO(db_session)
     test_name = uuid.uuid4().hex
     await dao.create_dummy_model(name=test_name)
     url = fastapi_app.url_path_for("get_dummy_models")

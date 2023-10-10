@@ -4,7 +4,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 
-from capturerrbackend.app.dao.users import UserRepo
+from capturerrbackend.app.repos.users import UserRepo
 from capturerrbackend.app.schemas.token import TokenResponse
 from capturerrbackend.app.services.users import UserService
 from capturerrbackend.app.settings import settings
@@ -19,7 +19,7 @@ user_repo = UserRepo()
 async def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
 ) -> TokenResponse:
-    token = UserService(user_repo=user_repo).authenticate_user(
+    token = UserService(repo=user_repo).authenticate_user(
         username=form_data.username,
         password=form_data.password,
     )

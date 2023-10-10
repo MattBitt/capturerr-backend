@@ -1,66 +1,59 @@
 """
-This model includes basic data models that are used in the whole application.
+_summary_
+
 """
-
-import json
-from typing import TypeVar
-
-from pydantic import BaseModel
-
-__all__ = (
-    "InternalModel",
-    "_InternalModel",
-    "PublicModel",
-    "_PublicModel",
-)
+import sqlalchemy as sa
+from sqlalchemy import Boolean, DateTime, Integer, func
+from sqlalchemy.ext.declarative import declared_attr
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 
-def to_camelcase(string: str) -> str:
-    """The alias generator for PublicModel."""
+class Base(DeclarativeBase):
+    """Base for all models."""
 
-    resp = "".join(
-        word.capitalize() if index else word
-        for index, word in enumerate(string.split("_"))
-    )
-    return resp
+    # Ensure all models have the same metadata object.
+    metadata = sa.MetaData()
+    pk: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
 
+    is_active = mapped_column(Boolean, default=True)
 
-# class FrozenModel(BaseModel):
-#     class Config:
-#         from_attributes = True
-#         use_enum_values = True
-#         populate_by_name = True
-#         arbitrary_types_allowed = True
+    created_by: Mapped[int] = mapped_column(Integer, nullable=True)
 
+    updated_by: Mapped[int] = mapped_column(Integer, nullable=True)
 
-class InternalModel(BaseModel):
-    class Config:
-        from_attributes = True
-        use_enum_values = True
-        populate_by_name = True
-        validate_assignment = True
-        arbitrary_types_allowed = True
+    account_pk: Mapped[int] = mapped_column(Integer, nullable=True)
 
-
-_InternalModel = TypeVar("_InternalModel", bound=InternalModel)
-
-
-class PublicModel(BaseModel):
-    class Config:
-        from_attributes = True
-        use_enum_values = True
-        validate_assignment = True
-        alias_generator = to_camelcase
-        populate_by_name = True
-        arbitrary_types_allowed = True
-
-    def encoded_dict(self, by_alias: bool = True) -> dict[str, str]:
-        """This method might be useful is the data should be passed
-        only with primitives that are allowed by JSON format.
-        The regular .dict() does not return the ISO datetime format
-        but the .json() - does. This method is a combination of them.
+    @declared_attr
+    def created_at(self) -> Mapped[DateTime]:
         """
-        return json.loads(self.json(by_alias=by_alias))
+        _summary_
 
+        Returns:
+            Mapped[DateTime]: _description_
+        """
+        return mapped_column(DateTime, default=func.now(), nullable=False)
 
-_PublicModel = TypeVar("_PublicModel", bound=PublicModel)
+    @declared_attr
+    def updated_at(self) -> Mapped[DateTime]:
+        """
+        _summary_
+
+        Returns:
+            Mapped[DateTime]: _description_
+        """
+        return mapped_column(
+            DateTime,
+            default=func.now(),
+            onupdate=func.now(),
+            nullable=False,
+        )
+
+    @declared_attr
+    def deleted_at(self) -> Mapped[DateTime]:
+        """
+        _summary_
+
+        Returns:
+            Mapped[DateTime]: _description_
+        """
+        return mapped_column(DateTime, default=func.now(), nullable=False)

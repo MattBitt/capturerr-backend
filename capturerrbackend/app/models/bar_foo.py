@@ -1,11 +1,11 @@
 from sqlalchemy import Column, ForeignKey, Table
 
-from capturerrbackend.app.models.base import Base
+from capturerrbackend.core.base.model import Base
 
 bar_foo = Table(
     "bar_foos",
     Base.metadata,
-    Column("bar_id", ForeignKey("bars.id"), primary_key=True),
-    Column("foo_id", ForeignKey("foos.id"), primary_key=True),
+    Column("bar_pk", ForeignKey("bars.pk"), primary_key=True),
+    Column("foo_pk", ForeignKey("foos.pk"), primary_key=True),
     extend_existing=True,
 )

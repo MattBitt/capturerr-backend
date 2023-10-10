@@ -1,0 +1,6 @@
+class BaseGetSchema:
+    ...
+
+
+class BaseCreateSchema:
+    ...

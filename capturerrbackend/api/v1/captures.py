@@ -55,14 +55,14 @@ async def create_capture_model(
     return new_capture[0]  # type: ignore
 
 
-@router.put("/{capture_id}/{tag_name}", response_model=CaptureResponse)
+@router.put("/{capture_pk}/{tag_name}", response_model=CaptureResponse)
 async def add_tag_to_capture(
-    capture_id: int,
+    capture_pk: int,
     tag_name: str,
     capture_dao: CaptureDAO = Depends(),
     tag_dao: TagDAO = Depends(),
 ) -> CaptureResponse:
-    capture = await capture_dao.get_by_id(id=capture_id)
+    capture = await capture_dao.get_by_pk(pk=capture_pk)
     tag = await tag_dao.get_or_create(name=tag_name)
     capture.tags.append(tag)  # type: ignore
 

@@ -8,7 +8,7 @@ class BarModelDTO(BaseModel):
     It returned when accessing bar models from the API.
     """
 
-    id: int
+    pk: int
     title: str
     # captures: Optional[List[FooModelDTO]]
     model_config = ConfigDict(from_attributes=True)

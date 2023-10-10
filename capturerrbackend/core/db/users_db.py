@@ -1,5 +1,5 @@
 u1 = {
-    "id": 1,
+    "pk": 1,
     "username": "lindsay",
     "full_name": "Lindsay F.",
     "email": "lindsay@bittfurst.xyz",
@@ -10,7 +10,7 @@ u1 = {
 
 
 u2 = {
-    "id": 2,
+    "pk": 2,
     "username": "matt",
     "full_name": "Matt B.",
     "email": "matt@bittfurst.xyz",
@@ -20,7 +20,7 @@ u2 = {
 }
 
 u3 = {
-    "id": 3,
+    "pk": 3,
     "username": "admin",
     "full_name": "Admin",
     "email": "admin@bittfurst.xyz",

@@ -8,7 +8,7 @@ class DazModelDTO(BaseModel):
     It returned when accessing daz models from the API.
     """
 
-    id: int
+    pk: int
     comment: str
     model_config = ConfigDict(from_attributes=True)
 

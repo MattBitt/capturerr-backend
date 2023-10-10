@@ -7,7 +7,7 @@ from capturerrbackend.core.db.users_db import users_db
 class UserRepo:
     def create_new_user(self, user_data: UserRequest) -> UserResponse:
         user = UserInDB(**user_data.model_dump())
-        user.id = len(users_db) + 1
+        user.pk = len(users_db) + 1
         users_db.append(user.model_dump())
         return UserResponse.model_validate(user)
 

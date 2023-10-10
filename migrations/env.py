@@ -1,5 +1,4 @@
 import asyncio
-from logging.config import fileConfig
 
 from alembic import context
 from sqlalchemy.ext.asyncio.engine import create_async_engine
@@ -7,24 +6,24 @@ from sqlalchemy.future import Connection
 
 from capturerrbackend.app.models import load_all_models
 from capturerrbackend.app.settings import settings
-from capturerrbackend.core.db.meta import meta
+from capturerrbackend.core.base.model import Base
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
-config = context.config
+config = context.config  # type: ignore
 
 
 load_all_models()
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
-if config.config_file_name is not None:
-    fileConfig(config.config_file_name)
+# if config.config_file_name is not None:
+#     fileConfig(config.config_file_name)
 
 # add your model's MetaData object here
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-target_metadata = meta
+target_metadata = Base.metadata
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:

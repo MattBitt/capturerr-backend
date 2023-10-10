@@ -13,7 +13,7 @@ from capturerrbackend.app.dao.daz_dao import DazDAO
 async def test_creation(
     fastapi_app: FastAPI,
     client: AsyncClient,
-    dbsession: AsyncSession,
+    db_session: AsyncSession,
 ) -> None:
     """Tests daz instance creation."""
     url = fastapi_app.url_path_for("create_daz_model")
@@ -25,7 +25,7 @@ async def test_creation(
         },
     )
     assert response.status_code == status.HTTP_200_OK
-    dao = DazDAO(dbsession)
+    dao = DazDAO(db_session)
     instances = await dao.filter(comment=test_comment)
     assert instances[0].comment == test_comment
 
@@ -34,10 +34,10 @@ async def test_creation(
 async def test_getting(
     fastapi_app: FastAPI,
     client: AsyncClient,
-    dbsession: AsyncSession,
+    db_session: AsyncSession,
 ) -> None:
     """Tests daz instance retrieval."""
-    dao = DazDAO(dbsession)
+    dao = DazDAO(db_session)
     test_comment = uuid.uuid4().hex
     await dao.create_daz_model(comment=test_comment)
     url = fastapi_app.url_path_for("get_daz_models")
