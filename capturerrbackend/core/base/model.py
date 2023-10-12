@@ -4,11 +4,12 @@ _summary_
 """
 import sqlalchemy as sa
 from sqlalchemy import Boolean, DateTime, Integer, func
-from sqlalchemy.ext.declarative import declared_attr
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from sqlalchemy.ext.declarative import as_declarative, declared_attr
+from sqlalchemy.orm import Mapped, mapped_column
 
 
-class Base(DeclarativeBase):
+@as_declarative()
+class Base:
     """Base for all models."""
 
     # Ensure all models have the same metadata object.

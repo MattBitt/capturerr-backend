@@ -110,6 +110,7 @@ async def db_session() -> AsyncGenerator[AsyncSession, None]:
 
 def test_user() -> dict[str, str]:
     return {
+        "pk": "1",
         "email": "matt@bittfurst.xyz",
         "password": "matt",
     }

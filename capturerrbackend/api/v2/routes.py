@@ -50,7 +50,7 @@ async def get_ingredient(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Ingredient does not exist",
         )
-    return IngredientSchema.from_orm(ingredient)
+    return IngredientSchema.model_validate(ingredient)
 
 
 @router.post("/potions", status_code=status.HTTP_201_CREATED)
@@ -64,7 +64,7 @@ async def create_potion(
         Ingredient.pk.in_(data_dict.pop("ingredients")),
     )
     potion = await potion_repository.create({**data_dict, "ingredients": ingredients})
-    return PotionSchema.from_orm(potion)
+    return PotionSchema.model_validate(potion)
 
 
 @router.get("/potions", status_code=status.HTTP_200_OK)

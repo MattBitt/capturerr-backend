@@ -1,7 +1,7 @@
-from pydantic import BaseModel
+# from pydantic import BaseModel
 
 
-class TagRequest(BaseModel):
-    """DTO for creating new tag model."""
+# class TagRequest(BaseModel):
+#     """DTO for creating new tag model."""
 
-    title: str
+#     title: str

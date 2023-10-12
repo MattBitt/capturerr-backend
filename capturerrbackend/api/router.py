@@ -1,13 +1,10 @@
 from fastapi.routing import APIRouter
 
 from capturerrbackend.api import bar, daz, dummy, echo, foo, monitoring
-from capturerrbackend.api.v1 import (
-    auth_router,
-    captures_router,
-    tags_router,
-    users_router,
-)
+from capturerrbackend.api.v1 import auth_router, users_router
+from capturerrbackend.api.v2.captures import router as capture_router_v2
 from capturerrbackend.api.v2.routes import router as potion_ingredient_router
+from capturerrbackend.api.v2.tags import router as tag_router_v2
 
 api_router = APIRouter()
 
@@ -19,9 +16,11 @@ api_router.include_router(bar.router, prefix="/bar", tags=["bar"])
 api_router.include_router(daz.router, prefix="/daz", tags=["daz"])
 
 api_router.include_router(auth_router, prefix="/v1/auth", tags=["auth"])
-api_router.include_router(captures_router, prefix="/v1/capture", tags=["capture"])
-api_router.include_router(tags_router, prefix="/v1/tag", tags=["tag"])
+# api_router.include_router(captures_router, prefix="/v1/capture", tags=["capture"])
+# api_router.include_router(tags_router, prefix="/v1/tag", tags=["tag"])
 api_router.include_router(users_router, prefix="/v1/users", tags=["users"])
 
 
 api_router.include_router(potion_ingredient_router, tags=["potions_ingredients"])
+api_router.include_router(capture_router_v2, tags=["capture"])
+api_router.include_router(tag_router_v2, tags=["tag"])

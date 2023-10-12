@@ -1,13 +1,13 @@
-from pydantic import BaseModel, ConfigDict
+# from pydantic import BaseModel, ConfigDict
 
 
-class TagResponse(BaseModel):
-    """
-    DTO for tag models.
+# class TagResponse(BaseModel):
+#     """
+#     DTO for tag models.
 
-    It returned when accessing tag models from the API.
-    """
+#     It returned when accessing tag models from the API.
+#     """
 
-    pk: int
-    title: str
-    model_config = ConfigDict(from_attributes=True)
+#     pk: int
+#     title: str
+#     model_config = ConfigDict(from_attributes=True)
