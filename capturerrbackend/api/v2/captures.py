@@ -1,6 +1,7 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Body
 from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
+from typing import Any
 
 # from capturerrbackend.app.repos.tags import TagRepository
 from capturerrbackend.app.schemas.capture import CapturePayload, CaptureSchema
@@ -13,23 +14,23 @@ router = APIRouter(prefix="/v2", tags=["v2"])
 
 @router.post("/captures", status_code=status.HTTP_201_CREATED)
 async def create_capture(
-    data: CapturePayload,
+    data: dict[str, str] = Body(..., embed=True),
     db_session: AsyncSession = Depends(get_db_session),
 ) -> CaptureSchema:
-    data_dict = data.model_dump()
+    # data_dict = data.model_dump()
 
     cap_service = CaptureService(db_session)
     tag_service = TagService(db_session)
-    tags = data_dict.pop("tags")
+
+    tags = data.pop("tags")
     tags_list = []
     for tag in tags:
-        tag = await tag_service.get_or_create(tag)
-        tags_list.append(tag)
+        t = await tag_service.get_or_create(tag)
+        tags_list.append(t)
 
     try:
-        await cap_service.add(**data_dict, tags=tags_list)
-
-        return await cap_service.get_by_text(data_dict["text"])
+        await cap_service.add(**data)
+        return await cap_service.get_by_text(data["text"])
     except Exception as e:
         logger.error(f"Error creating capture: {e}")
         raise HTTPException(

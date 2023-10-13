@@ -35,4 +35,4 @@ class CapturePayload(BaseModel):
     """Capture payload model."""
 
     text: str = Field(min_length=1, max_length=200)
-    tags: Optional[list[TagPayload]] = []  # Field(min_items=1)
+    tags: Optional[list[TagSchema]] = []  # Field(min_items=1)

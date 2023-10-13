@@ -100,7 +100,7 @@ class BaseRepo(Generic[ModelType, CreateModel, GetModel]):
         db.add(new_instance)
         await db.commit()
         await db.refresh(new_instance)
-        return self.get_model.model_validate(new_instance)
+        return new_instance
 
     async def list(self, db: AsyncSession, limit: int = 25) -> list[GetModel]:
         async with db as session:

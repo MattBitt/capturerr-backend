@@ -20,6 +20,18 @@ class LogLevel(str, enum.Enum):  # noqa: WPS600
     FATAL = "FATAL"
 
 
+class Environment(str, enum.Enum):  # noqa: WPS600
+    """Possible environments."""
+
+    DEV = "development"
+    PROD = "production"
+    TEST = "test"
+
+
+class AppSettings(BaseSettings):
+    environment: Environment = Environment.DEV
+
+
 class Settings(BaseSettings):
     """
     Application settings.

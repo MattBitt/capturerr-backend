@@ -28,21 +28,15 @@ class CaptureService(BaseService):
     async def get_by_text(self, text: str) -> CaptureSchema:
         return await self._repository.get_by_text(text, self.db)
 
-    async def add(self, text: str, tags: list[str] = []) -> bool:
+    async def add(self, text: str) -> bool:
         exists = await self.get_by_text(text)
         if exists:
             return False
         new_capture = self.create_schema(text=text)
-        for tag in tags:
-            new_tag = await self.tag_service.add(tag)
-            if new_tag:
-                new_capture.tags.append(
-                    TagPayload.model_validate(
-                        await self.tag_service.get_tag_by_name(tag),
-                    ),
-                )
+
         try:
-            await self._repository.create(new_capture, self.db)
+            cap = CapturePayload.model_validate(new_capture)
+            await self._repository.create(cap, self.db)
         except Exception as e:
             print(e)
             return False

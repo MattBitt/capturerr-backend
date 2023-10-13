@@ -1,6 +1,8 @@
 # My ignores
 archive/
 testing_grounds
+config/*.env
+**/*.db
 ### Python template
 
 .idea/
