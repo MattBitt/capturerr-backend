@@ -1,11 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import List, Optional
 
-from capturerrbackend.app.domain.book.book_exception import (
-    BookNotFoundError,
-    BooksNotFoundError,
-)
-
+from ...domain.book.book_exception import BookNotFoundError, BooksNotFoundError
 from .book_query_model import BookReadModel
 from .book_query_service import BookQueryService
 

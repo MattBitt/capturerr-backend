@@ -1,30 +1,29 @@
-from loguru import logger
-from typing import Iterator, List
+from typing import List, Optional
 
-from fastapi import Depends, FastAPI, HTTPException, status, APIRouter
+from fastapi import APIRouter, Depends, HTTPException, status
+from loguru import logger
 from sqlalchemy.orm import Session
-from capturerrbackend.core.db.dependencies import get_sync_session
-from capturerrbackend.app.domain.book.book_exception import (
+
+from ..app.domain.book.book_exception import (
     BookIsbnAlreadyExistsError,
     BookNotFoundError,
     BooksNotFoundError,
 )
-from capturerrbackend.app.domain.book.book_repository import BookRepository
-from capturerrbackend.app.infrastructure.sqlite.book import (
+from ..app.domain.book.book_repository import BookRepository
+from ..app.infrastructure.dependencies import get_sync_session
+from ..app.infrastructure.sqlite.book import (
     BookCommandUseCaseUnitOfWorkImpl,
     BookQueryServiceImpl,
     BookRepositoryImpl,
 )
-from capturerrbackend.app.infrastructure.sqlite.database import (
-    SessionLocal,
-    create_tables,
-)
-from capturerrbackend.app.presentation.schema.book.book_error_message import (
+
+# from ..app.infrastructure.dependencies import book_command_usecase, book_query_usecase
+from ..app.presentation.schema.book.book_error_message import (
     ErrorMessageBookIsbnAlreadyExists,
     ErrorMessageBookNotFound,
     ErrorMessageBooksNotFound,
 )
-from capturerrbackend.app.usecase.book import (
+from ..app.usecase.book import (
     BookCommandUseCase,
     BookCommandUseCaseImpl,
     BookCommandUseCaseUnitOfWork,
@@ -35,7 +34,6 @@ from capturerrbackend.app.usecase.book import (
     BookReadModel,
     BookUpdateModel,
 )
-
 
 router = APIRouter()
 
@@ -54,7 +52,8 @@ def book_command_usecase(
     """Get a book command use case."""
     book_repository: BookRepository = BookRepositoryImpl(session)
     uow: BookCommandUseCaseUnitOfWork = BookCommandUseCaseUnitOfWorkImpl(
-        session, book_repository=book_repository
+        session,
+        book_repository=book_repository,
     )
     return BookCommandUseCaseImpl(uow)
 
@@ -69,10 +68,10 @@ def book_command_usecase(
         },
     },
 )
-async def create_book(
+def create_book(
     data: BookCreateModel,
     book_command_usecase: BookCommandUseCase = Depends(book_command_usecase),
-) -> BookReadModel:
+) -> Optional[BookReadModel]:
     """Create a book."""
     try:
         book = book_command_usecase.create_book(data)
@@ -135,7 +134,7 @@ async def get_books(
 async def get_book(
     book_id: str,
     book_query_usecase: BookQueryUseCase = Depends(book_query_usecase),
-):
+) -> Optional[BookReadModel]:
     """Get a book."""
     try:
         book = book_query_usecase.fetch_book_by_id(book_id)
@@ -167,7 +166,7 @@ async def update_book(
     book_id: str,
     data: BookUpdateModel,
     book_command_usecase: BookCommandUseCase = Depends(book_command_usecase),
-):
+) -> Optional[BookReadModel]:
     """Update a book."""
     try:
         updated_book = book_command_usecase.update_book(book_id, data)
@@ -197,7 +196,7 @@ async def update_book(
 async def delete_book(
     book_id: str,
     book_command_usecase: BookCommandUseCase = Depends(book_command_usecase),
-):
+) -> None:
     """Delete a bool."""
     try:
         book_command_usecase.delete_book_by_id(book_id)

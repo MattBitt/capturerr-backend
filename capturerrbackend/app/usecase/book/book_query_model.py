@@ -1,6 +1,6 @@
 from typing import cast
 
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 from capturerrbackend.app.domain.book.book import Book
 
@@ -12,7 +12,7 @@ class BookReadModel(BaseModel):
     id: str = Field(example="vytxeTZskVKR7C7WgdSP3d")
     isbn: str = Field(example="978-0321125217")
     title: str = Field(
-        example="Domain-Driven Design: Tackling Complexity in the Heart of Softwares"
+        example="Domain-Driven Design: Tackling Complexity in the Heart of Softwares",
     )
     page: int = Field(ge=0, example=320)
     read_page: int = Field(ge=0, example=120)

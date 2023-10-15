@@ -52,6 +52,7 @@ class BookRepositoryImpl(BookRepository):
             _book.page = book_dto.page
             _book.read_page = book_dto.read_page
             _book.updated_at = book_dto.updated_at
+            _book.isbn = book_dto.isbn
         except:
             raise
 

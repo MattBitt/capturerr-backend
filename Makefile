@@ -46,7 +46,7 @@ start: ## Starts the server
 	$(eval include .env)
 	$(eval export $(sh sed 's/=.*//' .env))
 
-	poetry run python -m capturerrbackend.app
+	poetry run uvicorn --host=0.0.0.0 --port=8000 --reload --factory capturerrbackend.app.application:get_app
 
 .PHONY: migrate
 migrate: ## Run the migrations
@@ -115,3 +115,10 @@ test: ## Run the test suite
 	$(eval export $(sh sed 's/=.*//' .env))
 
 	poetry run pytest -vv -s --cache-clear ./
+
+.PHONY: test_config
+test_config: ## run the test_config utility to output env settings
+	poetry run python capturerrbackend/tests/test_config.py dev
+	poetry run python capturerrbackend/tests/test_config.py test
+	poetry run python capturerrbackend/tests/test_config.py prod
+	poetry run python capturerrbackend/tests/test_config.py stage

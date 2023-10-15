@@ -3,8 +3,7 @@ from typing import List, Optional
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm.session import Session
 
-from capturerrbackend.app.usecase.book import BookQueryService, BookReadModel
-
+from ....usecase.book import BookQueryService, BookReadModel
 from .book_dto import BookDTO
 
 

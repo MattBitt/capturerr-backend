@@ -1,22 +1,15 @@
 from importlib import metadata
+from pprint import pprint
 
 from fastapi import FastAPI
 from fastapi.responses import UJSONResponse
+from loguru import logger
 
-from capturerrbackend.api.router import api_router
-
-# from capturerrbackend.app.lifetime import (
-#     register_shutdown_event,
-#     register_startup_event,
-# )
-from capturerrbackend.app.logging import configure_logging
-from capturerrbackend.app.middlewares import add_middleware
-
-# from capturerrbackend.core.errors import (
-#     custom_base_errors_handler,
-#     pydantic_validation_errors_handler,
-#     python_base_error_handler,
-# )
+from ..api.router import api_router
+from ..app.infrastructure.sqlite.database import create_tables
+from ..app.logging import configure_logging
+from ..app.middlewares import add_middleware
+from ..config.configurator import config
 
 
 def get_app() -> FastAPI:
@@ -28,9 +21,17 @@ def get_app() -> FastAPI:
     :return: application.
     """
     configure_logging()
+    logger.warning("💥💥💥  Starting application ...💥💥💥")
+
+    if "dev" in config.env:
+        logger.debug("Creating tables")
+        create_tables()
+        pprint(config.model_dump())
+        logger.critical(f"Environment: {config.env}")
+        logger.info(f"Log Level: {config.log_level}")
 
     app = FastAPI(
-        title="capturerrbackend",
+        title="capturerr",
         version=metadata.version("capturerrbackend"),
         docs_url="/api/docs",
         redoc_url="/api/redoc",

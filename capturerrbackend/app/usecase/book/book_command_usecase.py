@@ -1,16 +1,11 @@
 from abc import ABC, abstractmethod
 from typing import Optional, cast
-
 from uuid import uuid4
 
-from capturerrbackend.app.domain.book.book import Book
-from capturerrbackend.app.domain.book.book_exception import (
-    BookIsbnAlreadyExistsError,
-    BookNotFoundError,
-)
-from capturerrbackend.app.domain.book.book_repository import BookRepository
-from capturerrbackend.app.domain.book.isbn import Isbn
-
+from ...domain.book.book import Book
+from ...domain.book.book_exception import BookIsbnAlreadyExistsError, BookNotFoundError
+from ...domain.book.book_repository import BookRepository
+from ...domain.book.isbn import Isbn
 from .book_command_model import BookCreateModel, BookUpdateModel
 from .book_query_model import BookReadModel
 
@@ -43,7 +38,9 @@ class BookCommandUseCase(ABC):
 
     @abstractmethod
     def update_book(
-        self, book_id: str, data: BookUpdateModel
+        self,
+        book_id: str,
+        data: BookUpdateModel,
     ) -> Optional[BookReadModel]:
         raise NotImplementedError
 
@@ -82,7 +79,9 @@ class BookCommandUseCaseImpl(BookCommandUseCase):
         return BookReadModel.from_entity(cast(Book, created_book))
 
     def update_book(
-        self, book_id: str, data: BookUpdateModel
+        self,
+        book_id: str,
+        data: BookUpdateModel,
     ) -> Optional[BookReadModel]:
         try:
             existing_book = self.uow.book_repository.find_by_id(book_id)
@@ -91,7 +90,7 @@ class BookCommandUseCaseImpl(BookCommandUseCase):
 
             book = Book(
                 book_id=book_id,
-                isbn=existing_book.isbn,
+                isbn=Isbn(data.isbn),
                 title=data.title,
                 page=data.page,
                 read_page=data.read_page,

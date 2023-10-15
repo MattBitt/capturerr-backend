@@ -75,8 +75,8 @@ filterwarnings = [
     "ignore:.*unclosed.*:ResourceWarning",
 ]
 env = [
-    "CAPTURERRBACKEND_ENVIRONMENT=pytest",
-    "CAPTURERRBACKEND_DB_BASE=capturerrbackend_test",
+    "ENVIRONMENT=test",
+
 ]
 
 [fastapi-template.options]

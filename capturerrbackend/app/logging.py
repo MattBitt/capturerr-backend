@@ -4,7 +4,7 @@ from typing import Union
 
 from loguru import logger
 
-from capturerrbackend.app.settings import settings
+from capturerrbackend.config.configurator import config
 
 
 class InterceptHandler(logging.Handler):
@@ -59,5 +59,5 @@ def configure_logging() -> None:  # pragma: no cover
     logger.remove()
     logger.add(
         sys.stdout,
-        level=settings.log_level.value,
+        level=config.log_level,
     )

@@ -4,16 +4,14 @@ from alembic import context
 from sqlalchemy.ext.asyncio.engine import create_async_engine
 from sqlalchemy.future import Connection
 
-from capturerrbackend.app.models import load_all_models
-from capturerrbackend.app.settings import settings
-from capturerrbackend.core.base.model import Base
+from capturerrbackend.app.infrastructure.sqlite.database import Base
+from capturerrbackend.config.configurator import config as myconfig
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config  # type: ignore
 
 
-load_all_models()
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
 # if config.config_file_name is not None:
@@ -44,7 +42,7 @@ async def run_migrations_offline() -> None:
 
     """
     context.configure(
-        url=str(settings.db_url),
+        url=str(myconfig.db_url),
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
@@ -73,7 +71,7 @@ async def run_migrations_online() -> None:
     In this scenario we need to create an Engine
     and associate a connection with the context.
     """
-    connectable = create_async_engine(str(settings.db_url))
+    connectable = create_async_engine(str(myconfig.db_url))
 
     async with connectable.connect() as connection:
         await connection.run_sync(do_run_migrations)
