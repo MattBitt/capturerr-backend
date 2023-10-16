@@ -1,4 +1,5 @@
 from collections.abc import AsyncIterator, Iterator
+from datetime import datetime
 from typing import Any
 
 import pytest
@@ -9,10 +10,20 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import Session, sessionmaker
 
+from capturerrbackend.app.application import get_app
 from capturerrbackend.app.domain.book.book_repository import BookRepository
+from capturerrbackend.app.domain.user.user_repository import UserRepository
+from capturerrbackend.app.infrastructure.dependencies import get_sync_session
 from capturerrbackend.app.infrastructure.sqlite.book import (
     BookCommandUseCaseUnitOfWorkImpl,
+    BookQueryServiceImpl,
     BookRepositoryImpl,
+)
+from capturerrbackend.app.infrastructure.sqlite.database import Base
+from capturerrbackend.app.infrastructure.sqlite.user import (
+    UserCommandUseCaseUnitOfWorkImpl,
+    UserQueryServiceImpl,
+    UserRepositoryImpl,
 )
 from capturerrbackend.app.usecase.book import (
     BookCommandUseCase,
@@ -22,12 +33,16 @@ from capturerrbackend.app.usecase.book import (
     BookQueryUseCase,
     BookQueryUseCaseImpl,
 )
-
-from ..app.application import get_app
-from ..app.infrastructure.dependencies import get_sync_session
-from ..app.infrastructure.sqlite.book import BookQueryServiceImpl
-from ..app.infrastructure.sqlite.database import Base
-from ..config.configurator import config  # type: ignore
+from capturerrbackend.app.usecase.user import (
+    UserCommandUseCase,
+    UserCommandUseCaseImpl,
+    UserCommandUseCaseUnitOfWork,
+    UserQueryService,
+    UserQueryUseCase,
+    UserQueryUseCaseImpl,
+)
+from capturerrbackend.config.configurator import config  # type: ignore
+from capturerrbackend.utils.utils import get_int_timestamp
 
 engine = create_engine(str(config.db_url), connect_args={"check_same_thread": False})
 Base.metadata.drop_all(engine)
@@ -43,6 +58,22 @@ def fake_book() -> dict[str, Any]:
         "read_page": 80,
         "isbn": "978-1-445-85436-1",
         "page": 123,
+        "created_at": get_int_timestamp(datetime.now()),
+        "updated_at": get_int_timestamp(datetime.now()),
+        "deleted_at": None,
+    }
+
+
+@pytest.fixture
+def fake_user() -> dict[str, Any]:
+    return {
+        "user_name": "matt",
+        "first_name": "Matt",
+        "last_name": "Bittinger",
+        "email": "matt@bittfurst.xyz",
+        "created_at": get_int_timestamp(datetime.now()),
+        "updated_at": get_int_timestamp(datetime.now()),
+        "deleted_at": None,
     }
 
 
@@ -149,3 +180,20 @@ def book_command_usecase(db_fixture: Session) -> BookCommandUseCase:
         book_repository=book_repository,
     )
     return BookCommandUseCaseImpl(uow)
+
+
+@pytest.fixture()
+def user_query_usecase(db_fixture: Session) -> UserQueryUseCase:
+    """Get a user query use case."""
+    user_query_service: UserQueryService = UserQueryServiceImpl(db_fixture)
+    return UserQueryUseCaseImpl(user_query_service)
+
+
+@pytest.fixture()
+def user_command_usecase(db_fixture: Session) -> UserCommandUseCase:
+    user_repository: UserRepository = UserRepositoryImpl(db_fixture)
+    uow: UserCommandUseCaseUnitOfWork = UserCommandUseCaseUnitOfWorkImpl(
+        db_fixture,
+        user_repository=user_repository,
+    )
+    return UserCommandUseCaseImpl(uow)

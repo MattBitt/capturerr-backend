@@ -3,7 +3,7 @@ from sqlalchemy import Boolean, DateTime, Integer, create_engine, func
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, sessionmaker
 
-from ....config.configurator import config
+from capturerrbackend.config.configurator import config
 
 engine = create_engine(
     str(config.db_url),
@@ -28,6 +28,8 @@ class Base(DeclarativeBase):
 
     # Ensure all models have the same metadata object.
     metadata = sa.MetaData()
+
+    id: Mapped[str] = mapped_column(primary_key=True)
 
     is_active = mapped_column(Boolean, default=True)
 
