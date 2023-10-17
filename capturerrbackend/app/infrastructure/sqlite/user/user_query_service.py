@@ -39,3 +39,13 @@ class UserQueryServiceImpl(UserQueryService):
             return []
 
         return list(map(lambda user_dto: user_dto.to_read_model(), user_dtos))
+
+    def find_by_user_name(self, user_name: str) -> Optional[UserReadModel]:
+        try:
+            user_dto = self.session.query(UserDTO).filter_by(user_name=user_name).one()
+        except NoResultFound:
+            return None
+        except:
+            raise
+
+        return user_dto.to_read_model()

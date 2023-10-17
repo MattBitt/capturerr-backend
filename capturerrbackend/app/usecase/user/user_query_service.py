@@ -14,3 +14,7 @@ class UserQueryService(ABC):
     @abstractmethod
     def find_all(self) -> List[UserReadModel]:
         raise NotImplementedError
+
+    @abstractmethod
+    def find_by_user_name(self, user_name: str) -> Optional[UserReadModel]:
+        raise NotImplementedError

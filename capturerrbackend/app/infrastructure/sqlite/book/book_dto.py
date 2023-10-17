@@ -3,10 +3,10 @@ from datetime import datetime
 from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column
 
-from ....domain.book.book import Book
-from ....domain.book.isbn import Isbn
-from ....infrastructure.sqlite.database import Base
-from ....usecase.book import BookReadModel
+from capturerrbackend.app.domain.book.book import Book
+from capturerrbackend.app.domain.book.isbn import Isbn
+from capturerrbackend.app.infrastructure.sqlite.database import Base
+from capturerrbackend.app.usecase.book import BookReadModel
 
 
 def unixtimestamp() -> int:
@@ -17,13 +17,10 @@ class BookDTO(Base):
     """BookDTO is a data transfer object associated with Book entity."""
 
     __tablename__ = "book"
-    id: Mapped[str] = mapped_column(primary_key=True)
     isbn: Mapped[str] = mapped_column(String(17), unique=True, nullable=False)
     title: Mapped[str] = mapped_column(nullable=False)
     page: Mapped[int] = mapped_column(nullable=False)
     read_page: Mapped[int] = mapped_column(nullable=False, default=0)
-    created_at: Mapped[int] = mapped_column(index=True, nullable=False)
-    updated_at: Mapped[int] = mapped_column(index=True, nullable=False)
 
     def to_entity(self) -> Book:
         return Book(

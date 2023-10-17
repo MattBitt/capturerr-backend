@@ -1,4 +1,4 @@
-from typing import cast
+from typing import Optional
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -18,8 +18,12 @@ class UserReadModel(BaseModel):
     )
     last_name: str = Field(example="Doe")
     email: str = Field(example="admin@example.com")
-    created_at: int = Field(example=1136214245000)
-    updated_at: int = Field(example=1136214245000)
+    is_active: bool = Field(example=True)
+    is_superuser: bool = Field(example=False)
+    created_at: Optional[str] = Field(example="1136214245000")
+    updated_at: Optional[str] = Field(example="1136214245000")
+    deleted_at: Optional[str] = Field(example="1136214245000", default=None)
+    hashed_password: Optional[str] = Field(example="bjcvljdsaflkrjqewoigfddsaf")
 
     @staticmethod
     def from_entity(user: User) -> "UserReadModel":
@@ -29,6 +33,22 @@ class UserReadModel(BaseModel):
             first_name=user.first_name,
             last_name=user.last_name,
             email=user.email,
-            created_at=cast(int, user.created_at),
-            updated_at=cast(int, user.updated_at),
+            is_active=user.is_active,
+            is_superuser=user.is_superuser,
+            hashed_password=user.hashed_password,
+            created_at=str(user.created_at),
+            updated_at=str(user.updated_at),
+            deleted_at=str(user.deleted_at),
         )
+
+
+class UserLoginModel(BaseModel):
+    """UserLoginModel represents a write model to login a user."""
+
+    user_name: str = Field(
+        example="mizzle-bizzle",
+    )
+
+    password: str = Field(
+        example="password",
+    )

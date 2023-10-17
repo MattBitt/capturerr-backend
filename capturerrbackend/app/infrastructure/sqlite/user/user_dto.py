@@ -2,10 +2,9 @@ from datetime import datetime
 
 from sqlalchemy.orm import Mapped, mapped_column
 
+from capturerrbackend.app.domain.user.user import User
 from capturerrbackend.app.infrastructure.sqlite.database import Base
-
-from ....domain.user.user import User
-from ....usecase.user import UserReadModel
+from capturerrbackend.app.usecase.user import UserReadModel
 
 
 def unixtimestamp() -> int:
@@ -21,8 +20,8 @@ class UserDTO(Base):
     first_name: Mapped[str] = mapped_column(nullable=False)
     last_name: Mapped[str] = mapped_column(nullable=False)
     email: Mapped[str] = mapped_column(nullable=False)
-    created_at: Mapped[int] = mapped_column(index=True, nullable=False)
-    updated_at: Mapped[int] = mapped_column(index=True, nullable=False)
+    hashed_password: Mapped[str] = mapped_column(nullable=True)
+    is_superuser: Mapped[bool] = mapped_column(nullable=False, default=True)
 
     def to_entity(self) -> User:
         return User(
@@ -31,8 +30,12 @@ class UserDTO(Base):
             first_name=self.first_name,
             last_name=self.last_name,
             email=self.email,
+            is_active=self.is_active,
+            is_superuser=self.is_superuser,
+            hashed_password=self.hashed_password,
             created_at=self.created_at,
             updated_at=self.updated_at,
+            deleted_at=self.deleted_at,
         )
 
     def to_read_model(self) -> UserReadModel:
@@ -41,20 +44,27 @@ class UserDTO(Base):
             user_name=self.user_name,
             first_name=self.first_name,
             last_name=self.last_name,
+            is_active=self.is_active,
+            is_superuser=self.is_superuser,
             email=self.email,
-            created_at=self.created_at,
-            updated_at=self.updated_at,
+            hashed_password=self.hashed_password,
+            created_at=str(self.created_at),
+            updated_at=str(self.updated_at),
+            deleted_at=str(self.deleted_at),
         )
 
     @staticmethod
     def from_entity(user: User) -> "UserDTO":
-        now = unixtimestamp()
         return UserDTO(
             id=user.user_id,
             user_name=user.user_name,
             first_name=user.first_name,
             last_name=user.last_name,
             email=user.email,
-            created_at=now,
-            updated_at=now,
+            is_active=user.is_active,
+            is_superuser=user.is_superuser,
+            hashed_password=user.hashed_password,
+            created_at=user.created_at,
+            updated_at=user.updated_at,
+            deleted_at=user.deleted_at,
         )

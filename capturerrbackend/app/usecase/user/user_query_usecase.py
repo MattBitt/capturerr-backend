@@ -1,9 +1,18 @@
 from abc import ABC, abstractmethod
 from typing import List, Optional
 
-from ...domain.user.user_exception import UserNotFoundError, UsersNotFoundError
-from .user_query_model import UserReadModel
+from capturerrbackend.app.domain.user.user_exception import (
+    UserBadCredentialsError,
+    UserNotFoundError,
+    UsersNotFoundError,
+)
+
+from .user_query_model import UserLoginModel, UserReadModel
 from .user_query_service import UserQueryService
+
+
+def myhash(password: str) -> str:
+    return "asdf" + password
 
 
 class UserQueryUseCase(ABC):
@@ -17,6 +26,16 @@ class UserQueryUseCase(ABC):
     @abstractmethod
     def fetch_users(self) -> List[UserReadModel]:
         """fetch_users fetches users."""
+        raise NotImplementedError
+
+    @abstractmethod
+    def fetch_user_by_user_name(self, user_name: str) -> Optional[UserReadModel]:
+        """fetch_user_by_id fetches a user by id."""
+        raise NotImplementedError
+
+    @abstractmethod
+    def login_user(self, data: UserLoginModel) -> Optional[UserReadModel]:
+        """fetch_user_by_id fetches a user by id."""
         raise NotImplementedError
 
 
@@ -47,3 +66,23 @@ class UserQueryUseCaseImpl(UserQueryUseCase):
             raise
 
         return users
+
+    def fetch_user_by_user_name(self, user_name: str) -> Optional[UserReadModel]:
+        """fetch_user_by_id fetches a user by id."""
+        raise NotImplementedError
+
+    def login_user(self, data: UserLoginModel) -> Optional[UserReadModel]:
+        try:
+            existing_user = self.user_query_service.find_by_user_name(data.user_name)
+            if existing_user is None:
+                raise UserNotFoundError
+
+            new_password = myhash(data.password)
+            if new_password != existing_user.hashed_password:
+                raise UserBadCredentialsError
+
+            user = self.user_query_service.find_by_user_name(data.user_name)
+        except:
+            raise
+
+        return user

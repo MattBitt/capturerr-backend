@@ -6,12 +6,14 @@ from sqlalchemy.orm import Session
 
 from capturerrbackend.app.domain.user.user_exception import (
     UserAlreadyExistsError,
+    UserBadCredentialsError,
     UserNotFoundError,
     UsersNotFoundError,
 )
 
 # from ..app.infrastructure.dependencies import user_command_usecase, user_query_usecase
 from capturerrbackend.app.presentation.schema.user.user_error_message import (
+    ErrorMessageBadCredentials,
     ErrorMessageUserAlreadyExists,
     ErrorMessageUserNotFound,
     ErrorMessageUsersNotFound,
@@ -29,6 +31,7 @@ from ..app.usecase.user import (
     UserCommandUseCaseImpl,
     UserCommandUseCaseUnitOfWork,
     UserCreateModel,
+    UserLoginModel,
     UserQueryService,
     UserQueryUseCase,
     UserQueryUseCaseImpl,
@@ -211,3 +214,35 @@ async def delete_user(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
+
+
+@router.post(
+    "/users/login",
+    response_model=UserReadModel,
+    status_code=status.HTTP_200_OK,
+    responses={
+        status.HTTP_401_UNAUTHORIZED: {
+            "model": ErrorMessageBadCredentials,
+        },
+    },
+)
+async def login_user(
+    user: UserLoginModel,
+    user_query_usecase: UserQueryUseCase = Depends(user_query_usecase),
+    user_command_usecase: UserCommandUseCase = Depends(user_command_usecase),
+) -> Optional[UserReadModel]:
+    """Get a user."""
+    try:
+        potential_user = user_query_usecase.login_user(user)
+    except UserBadCredentialsError as err:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=err.message,
+        )
+    except Exception as err:
+        logger.error(err)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
+
+    return potential_user

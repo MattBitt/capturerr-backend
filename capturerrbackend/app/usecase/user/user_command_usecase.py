@@ -1,6 +1,9 @@
 from abc import ABC, abstractmethod
+from datetime import datetime
 from typing import Optional, cast
 from uuid import uuid4
+
+from loguru import logger
 
 from capturerrbackend.app.domain.user.user import User
 from capturerrbackend.app.domain.user.user_exception import (
@@ -11,6 +14,10 @@ from capturerrbackend.app.domain.user.user_repository import UserRepository
 
 from .user_command_model import UserCreateModel, UserUpdateModel
 from .user_query_model import UserReadModel
+
+
+def myhash(password: str) -> str:
+    return "asdf" + password
 
 
 class UserCommandUseCaseUnitOfWork(ABC):
@@ -70,6 +77,10 @@ class UserCommandUseCaseImpl(UserCommandUseCase):
                 first_name=data.first_name,
                 last_name=data.last_name,
                 email=data.email,
+                hashed_password=myhash(data.password),
+                created_at=cast(int, datetime.now()),
+                updated_at=cast(int, datetime.now()),
+                deleted_at=None,
             )
 
             existing_user = self.uow.user_repository.find_by_user_name(user.user_name)
@@ -102,6 +113,7 @@ class UserCommandUseCaseImpl(UserCommandUseCase):
                 first_name=data.first_name,
                 last_name=data.last_name,
                 email=data.email,
+                # updated_at=cast(int, datetime.now()),
             )
 
             self.uow.user_repository.update(user)
@@ -109,7 +121,8 @@ class UserCommandUseCaseImpl(UserCommandUseCase):
             updated_user = self.uow.user_repository.find_by_id(user.user_id)
 
             self.uow.commit()
-        except:
+        except Exception as err:
+            logger.error(err)
             self.uow.rollback()
             raise
 

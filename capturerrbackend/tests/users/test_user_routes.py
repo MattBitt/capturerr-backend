@@ -1,6 +1,5 @@
 from typing import Any
 
-import pytest
 from fastapi.testclient import TestClient
 
 from capturerrbackend.app.domain.user.user_exception import (
@@ -98,9 +97,10 @@ def test_update_user(client: TestClient, fake_user: dict[str, Any]) -> None:
     assert response.status_code == 201
 
     user_id = response.json()["id"]
+    response.json()["updated_at"]
     data = {
-        "user_name": "Updated Test User",
-        "last_name": "Bitt",
+        "user_name": "matt",
+        "last_name": "Bizzle",
         "first_name": "Matt",
         "email": "matt@bittfurst.xyz",
     }
@@ -109,6 +109,9 @@ def test_update_user(client: TestClient, fake_user: dict[str, Any]) -> None:
 
     # Assert
     assert response.status_code == 202
+
+    # assert response.json()["updated_at"] > original_updated_at
+
     assert response.json()["id"] == user_id
     assert response.json()["user_name"] == data["user_name"]
     assert response.json()["email"] == data["email"]
@@ -152,10 +155,11 @@ def test_delete_user(client: TestClient, fake_user: dict[str, Any]) -> None:
     assert response.status_code == 202
 
     users = client.get("/api/users")
-    assert users.status_code == 404
+    assert users.status_code == 200
+    assert users.json()[0]["id"] == user_id
+    assert users.json()[0]["deleted_at"] is not None
 
 
-@pytest.mark.anyio
 def test_delete_user_with_invalid_id(client: TestClient) -> None:
     # Arrange
     user_id = 999
@@ -166,3 +170,19 @@ def test_delete_user_with_invalid_id(client: TestClient) -> None:
     # Assert
     assert response.status_code == 404
     assert response.json()["detail"] == UserNotFoundError.message
+
+
+def test_login_user(client: TestClient, fake_user: dict[str, Any]) -> None:
+    # Arrange
+    response = client.post("/api/users", json=fake_user)
+    assert response.status_code == 201
+    # Act
+    data = {
+        "user_name": response.json()["user_name"],
+        "password": "matt",
+    }
+    response = client.post("/api/users/login", json=data)
+
+    # Assert
+    assert response.status_code == 200
+    assert len(response.json()) > 0

@@ -1,4 +1,5 @@
-from typing import Optional
+from datetime import datetime
+from typing import Optional, cast
 
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm.session import Session
@@ -51,14 +52,16 @@ class UserRepositoryImpl(UserRepository):
             _user.user_name = user_dto.user_name
             _user.first_name = user_dto.first_name
             _user.last_name = user_dto.last_name
-            _user.updated_at = user_dto.updated_at
+            # _user.updated_at = user_dto.updated_at
 
         except:
             raise
 
     def delete_by_id(self, user_id: str) -> None:
         try:
-            self.session.query(UserDTO).filter_by(id=user_id).delete()
+            user_dto = self.session.query(UserDTO).filter_by(id=user_id).one()
+            user_dto.is_active = False
+            user_dto.deleted_at = cast(int, datetime.now())
         except:
             raise
 

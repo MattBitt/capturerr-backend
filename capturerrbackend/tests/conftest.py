@@ -71,6 +71,8 @@ def fake_user() -> dict[str, Any]:
         "first_name": "Matt",
         "last_name": "Bittinger",
         "email": "matt@bittfurst.xyz",
+        "password": "matt",
+        "hashed_password": "asdfmatt",
         "created_at": get_int_timestamp(datetime.now()),
         "updated_at": get_int_timestamp(datetime.now()),
         "deleted_at": None,

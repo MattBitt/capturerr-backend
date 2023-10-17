@@ -28,3 +28,13 @@ class UserAlreadyExistsError(Exception):
 
     def __str__(self) -> str:
         return UserAlreadyExistsError.message
+
+
+class UserBadCredentialsError(Exception):
+    """UserBadCredentialsError is an error that occurs when a
+    user cannot login with the credentials provided."""
+
+    message = "The credentials you specified do not match an existing account."
+
+    def __str__(self) -> str:
+        return UserBadCredentialsError.message

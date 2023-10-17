@@ -2,6 +2,7 @@ from pydantic import BaseModel, Field
 
 from capturerrbackend.app.domain.user.user_exception import (
     UserAlreadyExistsError,
+    UserBadCredentialsError,
     UserNotFoundError,
     UsersNotFoundError,
 )
@@ -17,3 +18,7 @@ class ErrorMessageUsersNotFound(BaseModel):
 
 class ErrorMessageUserAlreadyExists(BaseModel):
     detail: str = Field(example=UserAlreadyExistsError.message)
+
+
+class ErrorMessageBadCredentials(BaseModel):
+    detail: str = Field(example=UserBadCredentialsError.message)

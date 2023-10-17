@@ -1,43 +1,32 @@
-from datetime import datetime
 from typing import Optional
 
 from pydantic import BaseModel, Field
 
-from capturerrbackend.utils.utils import get_int_timestamp
+
+class UserBaseModel(BaseModel):
+    user_name: str = Field(
+        example="mizzle-bizzle",
+    )
+
+    first_name: str = Field(
+        example="John",
+    )
+    last_name: str = Field(example="Doe")
+    email: str = Field(example="admin@example.com")
+    is_active: Optional[bool] = Field(example=True, default=True)
+    is_superuser: Optional[bool] = Field(example=False, default=False)
+    created_at: Optional[int] = Field(example=1136214245000, default=None)
+    updated_at: Optional[int] = Field(example=1136214245000, default=None)
+    deleted_at: Optional[int] = Field(example=1136214245000, default=None)
 
 
-def now() -> int:
-    return get_int_timestamp(datetime.now())
-
-
-class UserCreateModel(BaseModel):
+class UserCreateModel(UserBaseModel):
     """UserCreateModel represents a write model to create a user."""
 
-    user_name: str = Field(
-        example="mizzle-bizzle",
-    )
-
-    first_name: str = Field(
-        example="John",
-    )
-    last_name: str = Field(example="Doe")
-    email: str = Field(example="admin@example.com")
-    created_at: int = Field(example=1136214245000)
-    updated_at: int = Field(example=1136214245000)
+    password: str = Field(example="password")
 
 
-class UserUpdateModel(BaseModel):
+class UserUpdateModel(UserBaseModel):
     """UserUpdateModel represents a write model to update a user."""
 
-    user_name: str = Field(
-        example="mizzle-bizzle",
-    )
-
-    first_name: str = Field(
-        example="John",
-    )
-    last_name: str = Field(example="Doe")
-    email: str = Field(example="admin@example.com")
-    created_at: Optional[int] = Field(example=1136214245000, default_factory=now)
-
-    updated_at: Optional[int] = Field(example=1136214245000, default_factory=now)
+    ...

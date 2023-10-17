@@ -20,20 +20,27 @@ def test_user_query_service(
     user_query_service: UserQueryService = UserQueryServiceImpl(db_fixture)
     assert isinstance(user_query_service, UserQueryServiceImpl)
 
+    # create 1st user
     user_model = UserCreateModel.model_validate(fake_user)
     user = user_command_usecase.create_user(
         user_model,
     )
     assert user is not None
     test_id = user.id
-    fake_user["user_name"] = "linzc1st"
+    test_user_name = user.user_name
 
+    # create 2nd user
+    fake_user["user_name"] = "linzc1st"
     user_model2 = UserCreateModel.model_validate(fake_user)
     user = user_command_usecase.create_user(
         user_model2,
     )
     assert user is not None
     new_user = user_query_service.find_by_id(test_id)
+    assert new_user is not None
+    assert new_user.id == test_id
+
+    new_user = user_query_service.find_by_user_name(user_name=test_user_name)
     assert new_user is not None
     assert new_user.id == test_id
 

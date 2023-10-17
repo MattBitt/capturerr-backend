@@ -4,7 +4,7 @@ from .user_command_usecase import (
     UserCommandUseCaseImpl,
     UserCommandUseCaseUnitOfWork,
 )
-from .user_query_model import UserReadModel
+from .user_query_model import UserLoginModel, UserReadModel
 from .user_query_service import UserQueryService
 from .user_query_usecase import UserQueryUseCase, UserQueryUseCaseImpl
 
@@ -18,4 +18,5 @@ __all__ = [
     "UserCommandUseCaseUnitOfWork",
     "UserCommandUseCaseImpl",
     "UserQueryUseCaseImpl",
+    "UserLoginModel",
 ]
