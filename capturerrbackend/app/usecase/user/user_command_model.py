@@ -5,19 +5,15 @@ from pydantic import BaseModel, Field
 
 class UserBaseModel(BaseModel):
     user_name: str = Field(
-        example="mizzle-bizzle",
+        example="matt",
     )
 
     first_name: str = Field(
-        example="John",
+        example="Matt",
     )
-    last_name: str = Field(example="Doe")
-    email: str = Field(example="admin@example.com")
-    is_active: Optional[bool] = Field(example=True, default=True)
+    last_name: str = Field(example="Bitt")
+    email: str = Field(example="matt@bittfurst.xyz")
     is_superuser: Optional[bool] = Field(example=False, default=False)
-    created_at: Optional[int] = Field(example=1136214245000, default=None)
-    updated_at: Optional[int] = Field(example=1136214245000, default=None)
-    deleted_at: Optional[int] = Field(example=1136214245000, default=None)
 
 
 class UserCreateModel(UserBaseModel):

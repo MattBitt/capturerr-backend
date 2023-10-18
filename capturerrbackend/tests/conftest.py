@@ -3,9 +3,10 @@ from datetime import datetime
 from typing import Any
 
 import pytest
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException, status
 from fastapi.testclient import TestClient
 from httpx import AsyncClient
+from loguru import logger
 from sqlalchemy import create_engine
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import Session, sessionmaker
@@ -13,7 +14,10 @@ from sqlalchemy.orm import Session, sessionmaker
 from capturerrbackend.app.application import get_app
 from capturerrbackend.app.domain.book.book_repository import BookRepository
 from capturerrbackend.app.domain.user.user_repository import UserRepository
-from capturerrbackend.app.infrastructure.dependencies import get_sync_session
+from capturerrbackend.app.infrastructure.dependencies import (
+    get_current_active_user,
+    get_sync_session,
+)
 from capturerrbackend.app.infrastructure.sqlite.book import (
     BookCommandUseCaseUnitOfWorkImpl,
     BookQueryServiceImpl,
@@ -37,9 +41,11 @@ from capturerrbackend.app.usecase.user import (
     UserCommandUseCase,
     UserCommandUseCaseImpl,
     UserCommandUseCaseUnitOfWork,
+    UserCreateModel,
     UserQueryService,
     UserQueryUseCase,
     UserQueryUseCaseImpl,
+    UserReadModel,
 )
 from capturerrbackend.config.configurator import config  # type: ignore
 from capturerrbackend.utils.utils import get_int_timestamp
@@ -72,7 +78,6 @@ def fake_user() -> dict[str, Any]:
         "last_name": "Bittinger",
         "email": "matt@bittfurst.xyz",
         "password": "matt",
-        "hashed_password": "asdfmatt",
         "created_at": get_int_timestamp(datetime.now()),
         "updated_at": get_int_timestamp(datetime.now()),
         "deleted_at": None,
@@ -92,17 +97,6 @@ def db_fixture() -> Iterator[Session]:
         yield db
     finally:
         db.close()
-
-
-@pytest.fixture
-def client(db_fixture: Session) -> TestClient:
-    def _get_db_override() -> Session:
-        return db_fixture
-
-    app = get_app()
-    app.dependency_overrides[get_sync_session] = _get_db_override
-    # app.dependency_overrides[get_current_active_user] = test_user
-    return TestClient(app)
 
 
 @pytest.fixture(scope="session")
@@ -199,3 +193,36 @@ def user_command_usecase(db_fixture: Session) -> UserCommandUseCase:
         user_repository=user_repository,
     )
     return UserCommandUseCaseImpl(uow)
+
+
+@pytest.fixture
+def client(
+    db_fixture: Session,
+    user_query_usecase: UserQueryUseCase,
+    user_command_usecase: UserCommandUseCase,
+    fake_user: dict[str, Any],
+) -> TestClient:
+    def _get_db_override() -> Session:
+        return db_fixture
+
+    def _get_current_active_user_override() -> UserReadModel:
+        try:
+            user = user_query_usecase.fetch_users()[0]
+        except KeyError:
+            logger.debug("Creating a fake user since none exist yet")
+            user_model = UserCreateModel.model_validate(fake_user)
+            if user_model is None:
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                )
+            user = user_command_usecase.create_user(
+                user_model,
+            )
+        return user
+
+    app = get_app()
+    app.dependency_overrides[get_sync_session] = _get_db_override
+    app.dependency_overrides[
+        get_current_active_user
+    ] = _get_current_active_user_override
+    return TestClient(app)

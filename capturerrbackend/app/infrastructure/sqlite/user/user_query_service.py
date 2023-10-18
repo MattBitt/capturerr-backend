@@ -3,7 +3,8 @@ from typing import List, Optional
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm.session import Session
 
-from ....usecase.user import UserQueryService, UserReadModel
+from capturerrbackend.app.usecase.user import UserQueryService, UserReadModel
+
 from .user_dto import UserDTO
 
 

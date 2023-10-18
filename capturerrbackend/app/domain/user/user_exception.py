@@ -5,7 +5,7 @@
 class UserNotFoundError(Exception):
     """UserNotFoundError is an error that occurs when a user is not found."""
 
-    message = "The user you spcecified does not exist."
+    message = "The user you specified does not exist."
 
     def __str__(self) -> str:
         return UserNotFoundError.message

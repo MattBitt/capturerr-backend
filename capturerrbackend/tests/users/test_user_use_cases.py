@@ -54,7 +54,7 @@ def test_create_user_duplicate_username(
         raise
 
 
-def test_user_login(
+def test_login_query_usecase(
     fake_user: dict[str, Any],
     user_command_usecase: UserCommandUseCaseImpl,
     user_query_usecase: UserQueryUseCaseImpl,
@@ -72,7 +72,7 @@ def test_user_login(
     assert user is not None
 
 
-def test_user_login_bad_password(
+def test_login_query_usecase_bad_password(
     fake_user: dict[str, Any],
     user_command_usecase: UserCommandUseCaseImpl,
     user_query_usecase: UserQueryUseCaseImpl,

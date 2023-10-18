@@ -10,6 +10,16 @@ from capturerrbackend.app.domain.user.user_exception import (
     UserNotFoundError,
     UsersNotFoundError,
 )
+from capturerrbackend.app.domain.user.user_repository import UserRepository
+from capturerrbackend.app.infrastructure.dependencies import (
+    get_current_active_user,
+    get_sync_session,
+)
+from capturerrbackend.app.infrastructure.sqlite.user import (
+    UserCommandUseCaseUnitOfWorkImpl,
+    UserQueryServiceImpl,
+    UserRepositoryImpl,
+)
 
 # from ..app.infrastructure.dependencies import user_command_usecase, user_query_usecase
 from capturerrbackend.app.presentation.schema.user.user_error_message import (
@@ -18,15 +28,8 @@ from capturerrbackend.app.presentation.schema.user.user_error_message import (
     ErrorMessageUserNotFound,
     ErrorMessageUsersNotFound,
 )
-
-from ..app.domain.user.user_repository import UserRepository
-from ..app.infrastructure.dependencies import get_sync_session
-from ..app.infrastructure.sqlite.user import (
-    UserCommandUseCaseUnitOfWorkImpl,
-    UserQueryServiceImpl,
-    UserRepositoryImpl,
-)
-from ..app.usecase.user import (
+from capturerrbackend.app.usecase.user import (
+    Token,
     UserCommandUseCase,
     UserCommandUseCaseImpl,
     UserCommandUseCaseUnitOfWork,
@@ -37,6 +40,7 @@ from ..app.usecase.user import (
     UserQueryUseCaseImpl,
     UserReadModel,
     UserUpdateModel,
+    create_access_token,
 )
 
 router = APIRouter()
@@ -104,9 +108,11 @@ def create_user(
     },
 )
 async def get_users(
+    active_user: UserReadModel = Depends(get_current_active_user),
     user_query_usecase: UserQueryUseCase = Depends(user_query_usecase),
 ) -> List[UserReadModel]:
     """Get a list of users."""
+    logger.debug(f"Getting all users.  Requested by {active_user.user_name}")
     try:
         users = user_query_usecase.fetch_users()
 
@@ -123,6 +129,33 @@ async def get_users(
         )
 
     return users
+
+
+@router.get(
+    "/users/me",
+    response_model=UserReadModel,
+    status_code=status.HTTP_200_OK,
+)
+async def get_me(
+    active_user: UserReadModel = Depends(get_current_active_user),
+    user_query_usecase: UserQueryUseCase = Depends(user_query_usecase),
+) -> Optional[UserReadModel]:
+    """Get a user."""
+    logger.debug("In get_me route")
+    try:
+        user = user_query_usecase.fetch_user_by_user_name(active_user.user_name)
+    except UserNotFoundError as err:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=err.message,
+        )
+    except Exception as err:
+        logger.error(err)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
+
+    return user
 
 
 @router.get(
@@ -218,7 +251,7 @@ async def delete_user(
 
 @router.post(
     "/users/login",
-    response_model=UserReadModel,
+    response_model=Token,
     status_code=status.HTTP_200_OK,
     responses={
         status.HTTP_401_UNAUTHORIZED: {
@@ -230,10 +263,16 @@ async def login_user(
     user: UserLoginModel,
     user_query_usecase: UserQueryUseCase = Depends(user_query_usecase),
     user_command_usecase: UserCommandUseCase = Depends(user_command_usecase),
-) -> Optional[UserReadModel]:
+) -> Token:
     """Get a user."""
     try:
         potential_user = user_query_usecase.login_user(user)
+        if potential_user is None:
+            raise UserNotFoundError
+        token = Token(
+            access_token=create_access_token(potential_user.model_dump()),
+            token_type="bearer",
+        )
     except UserBadCredentialsError as err:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -245,4 +284,4 @@ async def login_user(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
 
-    return potential_user
+    return token

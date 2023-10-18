@@ -1,12 +1,15 @@
 from abc import ABC, abstractmethod
 from typing import List, Optional
 
+from loguru import logger
+
 from capturerrbackend.app.domain.user.user_exception import (
     UserBadCredentialsError,
     UserNotFoundError,
     UsersNotFoundError,
 )
 
+from .user_auth_service import verify_password
 from .user_query_model import UserLoginModel, UserReadModel
 from .user_query_service import UserQueryService
 
@@ -68,17 +71,25 @@ class UserQueryUseCaseImpl(UserQueryUseCase):
         return users
 
     def fetch_user_by_user_name(self, user_name: str) -> Optional[UserReadModel]:
-        """fetch_user_by_id fetches a user by id."""
-        raise NotImplementedError
+        """fetch_user_by_user_name fetches a user by user_name"""
+        try:
+            user = self.user_query_service.find_by_user_name(user_name)
+            if user is None:
+                raise UserNotFoundError
+        except:
+            raise
+
+        return user
 
     def login_user(self, data: UserLoginModel) -> Optional[UserReadModel]:
+        logger.debug("In login_user usecase")
         try:
             existing_user = self.user_query_service.find_by_user_name(data.user_name)
             if existing_user is None:
                 raise UserNotFoundError
-
-            new_password = myhash(data.password)
-            if new_password != existing_user.hashed_password:
+            if existing_user.hashed_password is None:
+                raise UserBadCredentialsError
+            if not verify_password(data.password, existing_user.hashed_password):
                 raise UserBadCredentialsError
 
             user = self.user_query_service.find_by_user_name(data.user_name)

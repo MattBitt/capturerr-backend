@@ -12,6 +12,7 @@ from capturerrbackend.app.domain.user.user_exception import (
 )
 from capturerrbackend.app.domain.user.user_repository import UserRepository
 
+from .user_auth_service import get_password_hash
 from .user_command_model import UserCreateModel, UserUpdateModel
 from .user_query_model import UserReadModel
 
@@ -43,7 +44,7 @@ class UserCommandUseCase(ABC):
     """UserCommandUseCase defines a command usecase inteface related User entity."""
 
     @abstractmethod
-    def create_user(self, data: UserCreateModel) -> Optional[UserReadModel]:
+    def create_user(self, data: UserCreateModel) -> UserReadModel:
         raise NotImplementedError
 
     @abstractmethod
@@ -68,7 +69,7 @@ class UserCommandUseCaseImpl(UserCommandUseCase):
     ):
         self.uow: UserCommandUseCaseUnitOfWork = uow
 
-    def create_user(self, data: UserCreateModel) -> Optional[UserReadModel]:
+    def create_user(self, data: UserCreateModel) -> UserReadModel:
         try:
             uuid = uuid4().hex
             user = User(
@@ -77,7 +78,7 @@ class UserCommandUseCaseImpl(UserCommandUseCase):
                 first_name=data.first_name,
                 last_name=data.last_name,
                 email=data.email,
-                hashed_password=myhash(data.password),
+                hashed_password=get_password_hash(data.password),
                 created_at=cast(int, datetime.now()),
                 updated_at=cast(int, datetime.now()),
                 deleted_at=None,
