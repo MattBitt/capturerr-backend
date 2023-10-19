@@ -15,6 +15,7 @@ class BookReadModel(BaseModel):
         example="Domain-Driven Design: Tackling Complexity in the Heart of Softwares",
     )
     page: int = Field(ge=0, example=320)
+    user_id: str = Field(example="vytxeTZskVKR7C7WgdSP3d")
     read_page: int = Field(ge=0, example=120)
     created_at: int = Field(example=1136214245000)
     updated_at: int = Field(example=1136214245000)
@@ -26,6 +27,7 @@ class BookReadModel(BaseModel):
             isbn=book.isbn.value,
             title=book.title,
             page=book.page,
+            user_id=book.user_id,
             read_page=book.read_page,
             created_at=cast(int, book.created_at),
             updated_at=cast(int, book.updated_at),

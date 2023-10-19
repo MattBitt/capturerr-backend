@@ -4,6 +4,7 @@ from capturerrbackend.app.domain.user.user_exception import (
     UserAlreadyExistsError,
     UserBadCredentialsError,
     UserNotFoundError,
+    UserNotSuperError,
     UsersNotFoundError,
 )
 
@@ -22,3 +23,7 @@ class ErrorMessageUserAlreadyExists(BaseModel):
 
 class ErrorMessageBadCredentials(BaseModel):
     detail: str = Field(example=UserBadCredentialsError.message)
+
+
+class ErrorMessageNotSuper(BaseModel):
+    detail: str = Field(example=UserNotSuperError.message)

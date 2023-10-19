@@ -39,3 +39,20 @@ class BookQueryServiceImpl(BookQueryService):
             return []
 
         return list(map(lambda book_dto: book_dto.to_read_model(), book_dtos))
+
+    def find_by_user_id(self, user_id: str) -> List[BookReadModel]:
+        try:
+            book_dtos = (
+                self.session.query(BookDTO)
+                .where(BookDTO.user_id == user_id)
+                .order_by(BookDTO.updated_at)
+                .limit(100)
+                .all()
+            )
+        except:
+            raise
+
+        if len(book_dtos) == 0:
+            return []
+
+        return list(map(lambda book_dto: book_dto.to_read_model(), book_dtos))

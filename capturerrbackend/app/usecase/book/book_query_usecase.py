@@ -19,6 +19,11 @@ class BookQueryUseCase(ABC):
         """fetch_books fetches books."""
         raise NotImplementedError
 
+    @abstractmethod
+    def fetch_books_by_user_id(self, user_id: str) -> List[BookReadModel]:
+        """fetch_books_by_user_id fetches books by user id."""
+        raise NotImplementedError
+
 
 class BookQueryUseCaseImpl(BookQueryUseCase):
     """BookQueryUseCaseImpl implements a query usecases related Book entity."""
@@ -41,6 +46,17 @@ class BookQueryUseCaseImpl(BookQueryUseCase):
         """fetch_books fetches books."""
         try:
             books = self.book_query_service.find_all()
+            if books is None:
+                raise BooksNotFoundError
+        except:
+            raise
+
+        return books
+
+    def fetch_books_by_user_id(self, user_id: str) -> List[BookReadModel]:
+        """fetch_books_by_user_id fetches books by user id."""
+        try:
+            books = self.book_query_service.find_by_user_id(user_id)
             if books is None:
                 raise BooksNotFoundError
         except:

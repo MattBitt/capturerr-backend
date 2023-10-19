@@ -14,3 +14,7 @@ class BookQueryService(ABC):
     @abstractmethod
     def find_all(self) -> List[BookReadModel]:
         raise NotImplementedError
+
+    @abstractmethod
+    def find_by_user_id(self, user_id: str) -> List[BookReadModel]:
+        raise NotImplementedError

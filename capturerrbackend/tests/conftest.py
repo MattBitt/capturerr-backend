@@ -15,6 +15,7 @@ from capturerrbackend.app.application import get_app
 from capturerrbackend.app.domain.book.book_repository import BookRepository
 from capturerrbackend.app.domain.user.user_repository import UserRepository
 from capturerrbackend.app.infrastructure.dependencies import (
+    get_current_active_super_user,
     get_current_active_user,
     get_sync_session,
 )
@@ -67,6 +68,7 @@ def fake_book() -> dict[str, Any]:
         "created_at": get_int_timestamp(datetime.now()),
         "updated_at": get_int_timestamp(datetime.now()),
         "deleted_at": None,
+        "user_id": "vytxeTZskVKR7C7WgdSP3d",
     }
 
 
@@ -208,7 +210,7 @@ def client(
     def _get_current_active_user_override() -> UserReadModel:
         try:
             user = user_query_usecase.fetch_users()[0]
-        except KeyError:
+        except IndexError:
             logger.debug("Creating a fake user since none exist yet")
             user_model = UserCreateModel.model_validate(fake_user)
             if user_model is None:
@@ -222,6 +224,9 @@ def client(
 
     app = get_app()
     app.dependency_overrides[get_sync_session] = _get_db_override
+    app.dependency_overrides[
+        get_current_active_super_user
+    ] = _get_current_active_user_override
     app.dependency_overrides[
         get_current_active_user
     ] = _get_current_active_user_override

@@ -19,6 +19,7 @@ def test_create_book(client: TestClient) -> None:
         "read_page": 60,
         "isbn": "978-1-445-01022-1",
         "page": 100,
+        "user_id": "vytxeTZskVKR7C7WgdSP3d",
     }
 
     # Act
@@ -39,6 +40,7 @@ def test_create_book_with_existing_isbn(client: TestClient) -> None:
         "read_page": 80,
         "isbn": "978-1-445-01022-1",
         "page": 123,
+        "user_id": "vytxeTZskVKR7C7WgdSP3d",
     }
 
     # Act
@@ -111,6 +113,7 @@ def test_update_book(client: TestClient, fake_book: dict[str, Any]) -> None:
         "isbn": "978-0-545-01022-1",
         "page": 123,
         "read_page": 86,
+        "user_id": "vytxeTZskVKR7C7WgdSP3d",
     }
     # Act
     response = client.put(f"/api/books/{book_id}", json=data)
@@ -138,6 +141,7 @@ def test_update_book_with_invalid_id(
         "isbn": "0987658521",
         "page": 300,
         "read_page": 86,
+        "user_id": "vytxeTZskVKR7C7WgdSP3d",
     }
     # Act
     response = client.put(f"/api/books/{book_id}", json=data)

@@ -7,17 +7,40 @@ from loguru import logger
 from sqlalchemy import create_engine, exc
 from sqlalchemy.orm import Session, sessionmaker
 
-from capturerrbackend.app.infrastructure.sqlite.user import UserQueryServiceImpl
+from capturerrbackend.app.domain.book.book_repository import BookRepository
+from capturerrbackend.app.domain.user.user_repository import UserRepository
+from capturerrbackend.app.infrastructure.sqlite.book import (
+    BookCommandUseCaseUnitOfWorkImpl,
+    BookQueryServiceImpl,
+    BookRepositoryImpl,
+)
+from capturerrbackend.app.infrastructure.sqlite.user import (
+    UserCommandUseCaseUnitOfWorkImpl,
+    UserQueryServiceImpl,
+    UserRepositoryImpl,
+)
 from capturerrbackend.app.presentation.schema.user.user_error_message import (
     UserBadCredentialsError,
     UserNotFoundError,
+    UserNotSuperError,
 )
-from capturerrbackend.app.usecase.user.user_auth_service import TokenData
-from capturerrbackend.app.usecase.user.user_query_model import UserReadModel
-from capturerrbackend.app.usecase.user.user_query_service import UserQueryService
-from capturerrbackend.app.usecase.user.user_query_usecase import (
+from capturerrbackend.app.usecase.book import (
+    BookCommandUseCase,
+    BookCommandUseCaseImpl,
+    BookCommandUseCaseUnitOfWork,
+    BookQueryService,
+    BookQueryUseCase,
+    BookQueryUseCaseImpl,
+)
+from capturerrbackend.app.usecase.user import (
+    TokenData,
+    UserCommandUseCase,
+    UserCommandUseCaseImpl,
+    UserCommandUseCaseUnitOfWork,
+    UserQueryService,
     UserQueryUseCase,
     UserQueryUseCaseImpl,
+    UserReadModel,
 )
 from capturerrbackend.config.configurator import config
 
@@ -43,6 +66,18 @@ def user_query_usecase(
     """Get a user query use case."""
     user_query_service: UserQueryService = UserQueryServiceImpl(db_fixture)
     return UserQueryUseCaseImpl(user_query_service)
+
+
+def user_command_usecase(
+    db_fixture: Session = Depends(get_sync_session),
+) -> UserCommandUseCase:
+    """Get a user command use case."""
+    user_repository: UserRepository = UserRepositoryImpl(db_fixture)
+    uow: UserCommandUseCaseUnitOfWork = UserCommandUseCaseUnitOfWorkImpl(
+        db_fixture,
+        user_repository=user_repository,
+    )
+    return UserCommandUseCaseImpl(uow)
 
 
 def get_current_user(
@@ -73,21 +108,29 @@ def get_current_active_user(
     return current_user
 
 
-# def book_query_usecase(
-#     session: Session = get_sync_session(),
-# ) -> BookQueryUseCase:
-#     """Get a book query use case."""
-#     book_query_service: BookQueryService = BookQueryServiceImpl(session)
-#     return BookQueryUseCaseImpl(book_query_service)
+def get_current_active_super_user(
+    current_user: Annotated[UserReadModel, Depends(get_current_active_user)],
+) -> UserReadModel:
+    if not current_user.is_superuser:
+        raise UserNotSuperError
+    return current_user
 
 
-# def book_command_usecase(
-#     session: Session,
-# ) -> BookCommandUseCase:
-#     """Get a book command use case."""
-#     book_repository: BookRepository = BookRepositoryImpl(session)
-#     uow: BookCommandUseCaseUnitOfWork = BookCommandUseCaseUnitOfWorkImpl(
-#         session,
-#         book_repository=book_repository,
-#     )
-#     return BookCommandUseCaseImpl(uow)
+def book_query_usecase(
+    session: Session = Depends(get_sync_session),
+) -> BookQueryUseCase:
+    """Get a book query use case."""
+    book_query_service: BookQueryService = BookQueryServiceImpl(session)
+    return BookQueryUseCaseImpl(book_query_service)
+
+
+def book_command_usecase(
+    session: Session = Depends(get_sync_session),
+) -> BookCommandUseCase:
+    """Get a book command use case."""
+    book_repository: BookRepository = BookRepositoryImpl(session)
+    uow: BookCommandUseCaseUnitOfWork = BookCommandUseCaseUnitOfWorkImpl(
+        session,
+        book_repository=book_repository,
+    )
+    return BookCommandUseCaseImpl(uow)

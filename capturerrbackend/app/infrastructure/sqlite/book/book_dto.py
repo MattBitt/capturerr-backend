@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import String
+from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from capturerrbackend.app.domain.book.book import Book
@@ -20,6 +20,9 @@ class BookDTO(Base):
     isbn: Mapped[str] = mapped_column(String(17), unique=True, nullable=False)
     title: Mapped[str] = mapped_column(nullable=False)
     page: Mapped[int] = mapped_column(nullable=False)
+    user_id: Mapped[str] = mapped_column(ForeignKey("user.id"))
+    # user: Mapped["UserDTO"] = relationship("UserDTO", back_populates="books")
+
     read_page: Mapped[int] = mapped_column(nullable=False, default=0)
 
     def to_entity(self) -> Book:
@@ -28,6 +31,7 @@ class BookDTO(Base):
             isbn=Isbn(self.isbn),
             title=self.title,
             page=self.page,
+            user_id=self.user_id,
             read_page=self.read_page,
             created_at=self.created_at,
             updated_at=self.updated_at,
@@ -39,6 +43,7 @@ class BookDTO(Base):
             isbn=self.isbn,
             title=self.title,
             page=self.page,
+            user_id=self.user_id,
             read_page=self.read_page,
             created_at=self.created_at,
             updated_at=self.updated_at,
@@ -52,6 +57,7 @@ class BookDTO(Base):
             isbn=book.isbn.value,
             title=book.title,
             page=book.page,
+            user_id=book.user_id,
             read_page=book.read_page,
             created_at=now,
             updated_at=now,

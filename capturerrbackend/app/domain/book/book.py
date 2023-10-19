@@ -15,6 +15,7 @@ class Book:
         isbn: Isbn,
         title: str,
         page: int,
+        user_id: str,
         read_page: int = 0,
         created_at: Optional[int] = None,
         updated_at: Optional[int] = None,
@@ -23,7 +24,9 @@ class Book:
         self.isbn: Isbn = isbn
         self.title: str = title
         self.page: int = page
+        self.user_id: str = user_id
         self.read_page: int = read_page
+
         self.created_at: Optional[int] = created_at
         self.updated_at: Optional[int] = updated_at
 

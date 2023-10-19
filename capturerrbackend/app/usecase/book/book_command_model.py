@@ -9,6 +9,7 @@ class BookCreateModel(BaseModel):
         example="Domain-Driven Design: Tackling Complexity in the Heart of Softwares",
     )
     page: int = Field(ge=0, example=320)
+    user_id: str = Field(example="vytxeTZskVKR7C7WgdSP3d")
 
 
 class BookUpdateModel(BaseModel):
@@ -19,6 +20,7 @@ class BookUpdateModel(BaseModel):
         example="Domain-Driven Design: Tackling Complexity in the Heart of Softwares",
     )
     page: int = Field(ge=0, example=320)
+    user_id: str = Field(example="vytxeTZskVKR7C7WgdSP3d")
     read_page: int = Field(ge=0, example=120)
 
     @validator("read_page")

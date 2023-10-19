@@ -38,3 +38,12 @@ class UserBadCredentialsError(Exception):
 
     def __str__(self) -> str:
         return UserBadCredentialsError.message
+
+
+class UserNotSuperError(Exception):
+    """UserNotSuperError is an error that occurs when a user is not an admin."""
+
+    message = "The user you specified does not have admin rights."
+
+    def __str__(self) -> str:
+        return UserNotSuperError.message

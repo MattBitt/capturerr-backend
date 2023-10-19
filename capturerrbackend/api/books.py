@@ -1,61 +1,35 @@
-from typing import List, Optional
+from typing import Annotated, List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from loguru import logger
-from sqlalchemy.orm import Session
 
-from ..app.domain.book.book_exception import (
+from capturerrbackend.app.domain.book.book_exception import (
     BookIsbnAlreadyExistsError,
     BookNotFoundError,
     BooksNotFoundError,
 )
-from ..app.domain.book.book_repository import BookRepository
-from ..app.infrastructure.dependencies import get_sync_session
-from ..app.infrastructure.sqlite.book import (
-    BookCommandUseCaseUnitOfWorkImpl,
-    BookQueryServiceImpl,
-    BookRepositoryImpl,
+from capturerrbackend.app.domain.user.user_exception import UserNotFoundError
+from capturerrbackend.app.infrastructure.dependencies import (
+    book_command_usecase,
+    book_query_usecase,
+    get_current_active_user,
+    user_query_usecase,
 )
-
-# from ..app.infrastructure.dependencies import book_command_usecase, book_query_usecase
-from ..app.presentation.schema.book.book_error_message import (
+from capturerrbackend.app.presentation.schema.book.book_error_message import (
     ErrorMessageBookIsbnAlreadyExists,
     ErrorMessageBookNotFound,
     ErrorMessageBooksNotFound,
 )
-from ..app.usecase.book import (
+from capturerrbackend.app.usecase.book import (
     BookCommandUseCase,
-    BookCommandUseCaseImpl,
-    BookCommandUseCaseUnitOfWork,
     BookCreateModel,
-    BookQueryService,
     BookQueryUseCase,
-    BookQueryUseCaseImpl,
     BookReadModel,
     BookUpdateModel,
 )
+from capturerrbackend.app.usecase.user import UserQueryUseCase, UserReadModel
 
 router = APIRouter()
-
-
-def book_query_usecase(
-    session: Session = Depends(get_sync_session),
-) -> BookQueryUseCase:
-    """Get a book query use case."""
-    book_query_service: BookQueryService = BookQueryServiceImpl(session)
-    return BookQueryUseCaseImpl(book_query_service)
-
-
-def book_command_usecase(
-    session: Session = Depends(get_sync_session),
-) -> BookCommandUseCase:
-    """Get a book command use case."""
-    book_repository: BookRepository = BookRepositoryImpl(session)
-    uow: BookCommandUseCaseUnitOfWork = BookCommandUseCaseUnitOfWorkImpl(
-        session,
-        book_repository=book_repository,
-    )
-    return BookCommandUseCaseImpl(uow)
 
 
 @router.post(
@@ -70,10 +44,18 @@ def book_command_usecase(
 )
 def create_book(
     data: BookCreateModel,
-    book_command_usecase: BookCommandUseCase = Depends(book_command_usecase),
+    current_user: Annotated[UserReadModel, Depends(get_current_active_user)],
+    user_query_usecase: Annotated[UserQueryUseCase, Depends(user_query_usecase)],
+    book_command_usecase: Annotated[BookCommandUseCase, Depends(book_command_usecase)],
 ) -> Optional[BookReadModel]:
     """Create a book."""
     try:
+        if current_user is None:
+            raise UserNotFoundError
+        user = user_query_usecase.fetch_user_by_id(current_user.id)
+        if user is None:
+            raise UserNotFoundError
+        data.user_id = user.id
         book = book_command_usecase.create_book(data)
     except BookIsbnAlreadyExistsError as e:
         raise HTTPException(

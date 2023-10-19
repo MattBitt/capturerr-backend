@@ -1,4 +1,4 @@
-from .user_auth_service import Token, create_access_token, verify_password
+from .user_auth_service import Token, TokenData, create_access_token, verify_password
 from .user_command_model import UserCreateModel, UserUpdateModel
 from .user_command_usecase import (
     UserCommandUseCase,
@@ -24,4 +24,5 @@ __all__ = [
     "create_access_token",
     "verify_token_access",
     "Token",
+    "TokenData",
 ]

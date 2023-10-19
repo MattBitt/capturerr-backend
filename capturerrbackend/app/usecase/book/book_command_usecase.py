@@ -62,7 +62,13 @@ class BookCommandUseCaseImpl(BookCommandUseCase):
         try:
             uuid = uuid4().hex
             isbn = Isbn(data.isbn)
-            book = Book(book_id=uuid, isbn=isbn, title=data.title, page=data.page)
+            book = Book(
+                book_id=uuid,
+                isbn=isbn,
+                title=data.title,
+                page=data.page,
+                user_id=data.user_id,
+            )
 
             existing_book = self.uow.book_repository.find_by_isbn(isbn.value)
             if existing_book is not None:
@@ -93,6 +99,7 @@ class BookCommandUseCaseImpl(BookCommandUseCase):
                 isbn=Isbn(data.isbn),
                 title=data.title,
                 page=data.page,
+                user_id=data.user_id,
                 read_page=data.read_page,
             )
 
