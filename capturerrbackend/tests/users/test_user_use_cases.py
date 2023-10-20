@@ -48,7 +48,7 @@ def test_create_user_duplicate_username(
         )
         assert True is False
     except UserAlreadyExistsError as e:
-        assert e.message == UserAlreadyExistsError.message
+        assert e.detail == UserAlreadyExistsError.detail
     except:
         assert True is False
         raise

@@ -1,8 +1,46 @@
+from typing import Any
+
 from fastapi import FastAPI, Request, Response
+from fastapi.exceptions import HTTPException
+from fastapi.responses import JSONResponse
 from loguru import logger
+
+from capturerrbackend.app.domain.user.user_exception import CustomException
 
 
 def add_middleware(app: FastAPI) -> FastAPI:
+    @app.middleware("http")
+    async def exception_handling(request: Request, call_next: Any) -> JSONResponse:
+        try:
+            return await call_next(request)
+        except CustomException as e:
+            return JSONResponse(
+                status_code=e.status_code,
+                content={
+                    "error": "Client Error",
+                    "detail": str(e.detail),
+                    "status_code": str(e.status_code),
+                },
+            )
+        except HTTPException as http_exception:
+            return JSONResponse(
+                status_code=http_exception.status_code,
+                content={
+                    "error": "Client Error",
+                    "message": str(http_exception.detail),
+                },
+            )
+        except Exception as e:
+            message = f"{e.__class__.__name__} args: {e.args}"
+            logger.error(message)
+            return JSONResponse(
+                status_code=500,
+                content={
+                    "error": "Internal Server Error",
+                    "message": "An unexpected error occurred.",
+                },
+            )
+
     @app.middleware("http")
     async def api_logging(request: Request, call_next) -> Response:  # type: ignore
         try:

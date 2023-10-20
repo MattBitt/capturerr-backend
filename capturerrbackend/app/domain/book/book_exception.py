@@ -1,30 +1,34 @@
 # -*- coding: utf-8 -*-
 """Book exception"""
+from capturerrbackend.app.domain.custom_exception import CustomException
 
 
-class BookNotFoundError(Exception):
+class BookNotFoundError(CustomException):
     """BookNotFoundError is an error that occurs when a book is not found."""
 
-    message = "The book you spcecified does not exist."
+    status_code = 404
+    detail = "The book you spcecified does not exist."
 
     def __str__(self) -> str:
-        return BookNotFoundError.message
+        return BookNotFoundError.detail
 
 
-class BooksNotFoundError(Exception):
+class BooksNotFoundError(CustomException):
     """BooksNotFoundError is an error that occurs when books are not found."""
 
-    message = "No books were found."
+    status_code = 404
+    detail = "No books were found."
 
     def __str__(self) -> str:
-        return BooksNotFoundError.message
+        return BooksNotFoundError.detail
 
 
-class BookIsbnAlreadyExistsError(Exception):
+class BookIsbnAlreadyExistsError(CustomException):
     """BookIsbnAlreadyExistsError is an error that occurs when a
     book with the same ISBN code already exists."""
 
-    message = "The book with the ISBN code you specified already exists."
+    status_code = 409
+    detail = "The book with the ISBN code you specified already exists."
 
     def __str__(self) -> str:
-        return BookIsbnAlreadyExistsError.message
+        return BookIsbnAlreadyExistsError.detail

@@ -1,29 +1,30 @@
-from pydantic import BaseModel, Field
-
-from capturerrbackend.app.domain.user.user_exception import (
-    UserAlreadyExistsError,
-    UserBadCredentialsError,
-    UserNotFoundError,
-    UserNotSuperError,
-    UsersNotFoundError,
-)
+# from pydantic import BaseModel, Field
 
 
-class ErrorMessageUserNotFound(BaseModel):
-    detail: str = Field(example=UserNotFoundError.message)
+# from capturerrbackend.app.domain.user.user_exception import (
+#     UserAlreadyExistsError,
+#     UserBadCredentialsError,
+#     UserNotFoundError,
+#     UserNotSuperError,
+#     UsersNotFoundError,
+# )
 
 
-class ErrorMessageUsersNotFound(BaseModel):
-    detail: str = Field(example=UsersNotFoundError.message)
+# class ErrorMessageUserNotFound(BaseModel):
+#     detail: str = Field(example=UserNotFoundError.message)
 
 
-class ErrorMessageUserAlreadyExists(BaseModel):
-    detail: str = Field(example=UserAlreadyExistsError.message)
+# class ErrorMessageUsersNotFound(BaseModel):
+#     detail: str = Field(example=UsersNotFoundError.message)
 
 
-class ErrorMessageBadCredentials(BaseModel):
-    detail: str = Field(example=UserBadCredentialsError.message)
+# class ErrorMessageUserAlreadyExists(BaseModel):
+#     detail: str = Field(example=UserAlreadyExistsError.message)
 
 
-class ErrorMessageNotSuper(BaseModel):
-    detail: str = Field(example=UserNotSuperError.message)
+# class ErrorMessageBadCredentials(BaseModel):
+#     detail: str = Field(example=UserBadCredentialsError.message)
+
+
+# class ErrorMessageNotSuper(BaseModel):
+#     detail: str = Field(example=UserNotSuperError.message)

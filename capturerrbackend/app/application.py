@@ -1,9 +1,15 @@
 from importlib import metadata
 from pprint import pprint
+from typing import Any
 
 from fastapi import FastAPI
-from fastapi.responses import UJSONResponse
+from fastapi.responses import JSONResponse, UJSONResponse
 from loguru import logger
+
+from capturerrbackend.app.presentation.app_exception_case import (
+    AppExceptionCase,
+    app_exception_handler,
+)
 
 from ..api.router import api_router
 from ..app.infrastructure.sqlite.database import create_tables
@@ -38,6 +44,10 @@ def get_app() -> FastAPI:
         openapi_url="/api/openapi.json",
         default_response_class=UJSONResponse,
     )
+
+    @app.exception_handler(AppExceptionCase)
+    async def custom_app_exception_handler(request: Any, e: Any) -> JSONResponse:
+        return await app_exception_handler(request, e)
 
     # Adds startup and shutdown events.
     # register_startup_event(app)

@@ -1,49 +1,55 @@
 # -*- coding: utf-8 -*-
 """User exception"""
+from capturerrbackend.app.domain.custom_exception import CustomException
 
 
-class UserNotFoundError(Exception):
+class UserNotFoundError(CustomException):
     """UserNotFoundError is an error that occurs when a user is not found."""
 
-    message = "The user you specified does not exist."
+    status_code = 404
+    detail = "The user you specified does not exist."
 
     def __str__(self) -> str:
-        return UserNotFoundError.message
+        return UserNotFoundError.detail
 
 
-class UsersNotFoundError(Exception):
+class UsersNotFoundError(CustomException):
     """UsersNotFoundError is an error that occurs when users are not found."""
 
-    message = "No users were found."
+    status_code = 404
+    detail = "No users were found."
 
     def __str__(self) -> str:
-        return UsersNotFoundError.message
+        return UsersNotFoundError.detail
 
 
-class UserAlreadyExistsError(Exception):
+class UserAlreadyExistsError(CustomException):
     """UserIsbnAlreadyExistsError is an error that occurs when a
     user with the same already exists."""
 
-    message = "The user you specified already exists."
+    status_code = 409
+    detail = "The user you specified already exists."
 
     def __str__(self) -> str:
-        return UserAlreadyExistsError.message
+        return UserAlreadyExistsError.detail
 
 
-class UserBadCredentialsError(Exception):
+class UserBadCredentialsError(CustomException):
     """UserBadCredentialsError is an error that occurs when a
     user cannot login with the credentials provided."""
 
-    message = "The credentials you specified do not match an existing account."
+    status_code = 401
+    detail = "The credentials you specified do not match an existing account."
 
     def __str__(self) -> str:
-        return UserBadCredentialsError.message
+        return UserBadCredentialsError.detail
 
 
-class UserNotSuperError(Exception):
+class UserNotSuperError(CustomException):
     """UserNotSuperError is an error that occurs when a user is not an admin."""
 
-    message = "The user you specified does not have admin rights."
+    status_code = 409
+    detail = "The user you specified does not have admin rights."
 
     def __str__(self) -> str:
-        return UserNotSuperError.message
+        return UserNotSuperError.detail

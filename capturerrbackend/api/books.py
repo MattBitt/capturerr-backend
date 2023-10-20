@@ -4,21 +4,16 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from loguru import logger
 
 from capturerrbackend.app.domain.book.book_exception import (
-    BookIsbnAlreadyExistsError,
     BookNotFoundError,
     BooksNotFoundError,
 )
+from capturerrbackend.app.domain.custom_exception import CustomException
 from capturerrbackend.app.domain.user.user_exception import UserNotFoundError
 from capturerrbackend.app.infrastructure.dependencies import (
     book_command_usecase,
     book_query_usecase,
     get_current_active_user,
     user_query_usecase,
-)
-from capturerrbackend.app.presentation.schema.book.book_error_message import (
-    ErrorMessageBookIsbnAlreadyExists,
-    ErrorMessageBookNotFound,
-    ErrorMessageBooksNotFound,
 )
 from capturerrbackend.app.usecase.book import (
     BookCommandUseCase,
@@ -36,11 +31,6 @@ router = APIRouter()
     "/books",
     response_model=BookReadModel,
     status_code=status.HTTP_201_CREATED,
-    responses={
-        status.HTTP_409_CONFLICT: {
-            "model": ErrorMessageBookIsbnAlreadyExists,
-        },
-    },
 )
 def create_book(
     data: BookCreateModel,
@@ -49,37 +39,34 @@ def create_book(
     book_command_usecase: Annotated[BookCommandUseCase, Depends(book_command_usecase)],
 ) -> Optional[BookReadModel]:
     """Create a book."""
-    try:
-        if current_user is None:
-            raise UserNotFoundError
-        user = user_query_usecase.fetch_user_by_id(current_user.id)
-        if user is None:
-            raise UserNotFoundError
-        data.user_id = user.id
-        book = book_command_usecase.create_book(data)
-    except BookIsbnAlreadyExistsError as e:
+    # try:
+    user = user_query_usecase.fetch_user_by_id(current_user.id)
+    if user is None:
         raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail=e.message,
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=UserNotFoundError.detail,
         )
-    except Exception as e:
-        logger.error(e)
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        )
-
+    data.user_id = user.id
+    book = book_command_usecase.create_book(data)
     return book
+    # except BookIsbnAlreadyExistsError as e:
+    #     raise HTTPException(
+    #         status_code=status.HTTP_409_CONFLICT,
+    #         detail=e.message,
+    #     )
+    # except Exception as e:
+    #     logger.error(e)
+    #     raise HTTPException(
+    #         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+    #     )
+
+    # return book
 
 
 @router.get(
     "/books",
     response_model=List[BookReadModel],
     status_code=status.HTTP_200_OK,
-    responses={
-        status.HTTP_404_NOT_FOUND: {
-            "model": ErrorMessageBooksNotFound,
-        },
-    },
 )
 async def get_books(
     book_query_usecase: BookQueryUseCase = Depends(book_query_usecase),
@@ -87,6 +74,12 @@ async def get_books(
     """Get a list of books."""
     try:
         books = book_query_usecase.fetch_books()
+
+    except CustomException as err:
+        raise HTTPException(
+            status_code=err.status_code,
+            detail=err.detail,
+        )
 
     except Exception as err:
         logger.error(err)
@@ -97,7 +90,7 @@ async def get_books(
     if len(books) == 0:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=BooksNotFoundError.message,
+            detail=BooksNotFoundError.detail,
         )
 
     return books
@@ -107,11 +100,6 @@ async def get_books(
     "/books/{book_id}",
     response_model=BookReadModel,
     status_code=status.HTTP_200_OK,
-    responses={
-        status.HTTP_404_NOT_FOUND: {
-            "model": ErrorMessageBookNotFound,
-        },
-    },
 )
 async def get_book(
     book_id: str,
@@ -123,7 +111,7 @@ async def get_book(
     except BookNotFoundError as err:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=err.message,
+            detail=err.detail,
         )
     except Exception as err:
         logger.error(err)
@@ -138,11 +126,6 @@ async def get_book(
     "/books/{book_id}",
     response_model=BookReadModel,
     status_code=status.HTTP_202_ACCEPTED,
-    responses={
-        status.HTTP_404_NOT_FOUND: {
-            "model": ErrorMessageBookNotFound,
-        },
-    },
 )
 async def update_book(
     book_id: str,
@@ -155,7 +138,7 @@ async def update_book(
     except BookNotFoundError as err:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=err.message,
+            detail=err.detail,
         )
     except Exception as err:
         logger.error(err)
@@ -169,11 +152,6 @@ async def update_book(
 @router.delete(
     "/books/{book_id}",
     status_code=status.HTTP_202_ACCEPTED,
-    responses={
-        status.HTTP_404_NOT_FOUND: {
-            "model": ErrorMessageBookNotFound,
-        },
-    },
 )
 async def delete_book(
     book_id: str,
@@ -185,7 +163,7 @@ async def delete_book(
     except BookNotFoundError as err:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=err.message,
+            detail=err.detail,
         )
     except Exception as err:
         logger.error(err)

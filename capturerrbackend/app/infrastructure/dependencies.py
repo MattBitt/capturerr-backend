@@ -8,6 +8,11 @@ from sqlalchemy import create_engine, exc
 from sqlalchemy.orm import Session, sessionmaker
 
 from capturerrbackend.app.domain.book.book_repository import BookRepository
+from capturerrbackend.app.domain.user.user_exception import (
+    UserBadCredentialsError,
+    UserNotFoundError,
+    UserNotSuperError,
+)
 from capturerrbackend.app.domain.user.user_repository import UserRepository
 from capturerrbackend.app.infrastructure.sqlite.book import (
     BookCommandUseCaseUnitOfWorkImpl,
@@ -18,11 +23,6 @@ from capturerrbackend.app.infrastructure.sqlite.user import (
     UserCommandUseCaseUnitOfWorkImpl,
     UserQueryServiceImpl,
     UserRepositoryImpl,
-)
-from capturerrbackend.app.presentation.schema.user.user_error_message import (
-    UserBadCredentialsError,
-    UserNotFoundError,
-    UserNotSuperError,
 )
 from capturerrbackend.app.usecase.book import (
     BookCommandUseCase,

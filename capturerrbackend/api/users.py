@@ -4,12 +4,10 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from loguru import logger
 
 from capturerrbackend.app.domain.book.book_exception import BooksNotFoundError
+from capturerrbackend.app.domain.custom_exception import CustomException
 from capturerrbackend.app.domain.user.user_exception import (
-    UserAlreadyExistsError,
-    UserBadCredentialsError,
     UserNotFoundError,
     UserNotSuperError,
-    UsersNotFoundError,
 )
 from capturerrbackend.app.infrastructure.dependencies import (
     book_query_usecase,
@@ -17,12 +15,6 @@ from capturerrbackend.app.infrastructure.dependencies import (
     get_current_active_user,
     user_command_usecase,
     user_query_usecase,
-)
-from capturerrbackend.app.presentation.schema.user.user_error_message import (
-    ErrorMessageBadCredentials,
-    ErrorMessageUserAlreadyExists,
-    ErrorMessageUserNotFound,
-    ErrorMessageUsersNotFound,
 )
 from capturerrbackend.app.usecase.book import BookQueryUseCase, BookReadModel
 from capturerrbackend.app.usecase.user import (
@@ -43,11 +35,6 @@ router = APIRouter()
     "/users",
     response_model=None,  # UserReadModel,
     status_code=status.HTTP_201_CREATED,
-    responses={
-        status.HTTP_409_CONFLICT: {
-            "model": ErrorMessageUserAlreadyExists,
-        },
-    },
 )
 def create_user(
     data: UserCreateModel,
@@ -56,10 +43,10 @@ def create_user(
     """Create a user."""
     try:
         user = user_command_usecase.create_user(data)
-    except UserAlreadyExistsError as e:
+    except CustomException as err:
         raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail=e.message,
+            status_code=err.status_code,
+            detail=err.detail,
         )
     except Exception as e:
         logger.error(e)
@@ -74,11 +61,6 @@ def create_user(
     "/users",
     response_model=List[UserReadModel],
     status_code=status.HTTP_200_OK,
-    responses={
-        status.HTTP_404_NOT_FOUND: {
-            "model": ErrorMessageUsersNotFound,
-        },
-    },
 )
 async def get_users(
     active_user: UserReadModel = Depends(get_current_active_user),
@@ -88,17 +70,15 @@ async def get_users(
     logger.debug(f"Getting all users.  Requested by {active_user.user_name}")
     try:
         users = user_query_usecase.fetch_users()
-
+    except CustomException as err:
+        raise HTTPException(
+            status_code=err.status_code,
+            detail=err.detail,
+        )
     except Exception as err:
         logger.error(err)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        )
-
-    if len(users) == 0:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=UsersNotFoundError.message,
         )
 
     return users
@@ -117,10 +97,10 @@ async def get_me(
     logger.debug("In get_me route")
     try:
         user = user_query_usecase.fetch_user_by_user_name(active_user.user_name)
-    except UserNotFoundError as err:
+    except CustomException as err:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=err.message,
+            status_code=err.status_code,
+            detail=err.detail,
         )
     except Exception as err:
         logger.error(err)
@@ -135,11 +115,6 @@ async def get_me(
     "/users/{user_id}",
     response_model=UserReadModel,
     status_code=status.HTTP_200_OK,
-    responses={
-        status.HTTP_404_NOT_FOUND: {
-            "model": ErrorMessageUserNotFound,
-        },
-    },
 )
 async def get_user(
     user_id: str,
@@ -150,10 +125,10 @@ async def get_user(
     logger.debug("This will only be logged if the user is an admin.")
     try:
         user = user_query_usecase.fetch_user_by_id(user_id)
-    except UserNotFoundError as err:
+    except CustomException as err:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=err.message,
+            status_code=err.status_code,
+            detail=err.detail,
         )
     except Exception as err:
         logger.error(err)
@@ -168,11 +143,6 @@ async def get_user(
     "/users/{user_id}",
     response_model=UserReadModel,
     status_code=status.HTTP_202_ACCEPTED,
-    responses={
-        status.HTTP_404_NOT_FOUND: {
-            "model": ErrorMessageUserNotFound,
-        },
-    },
 )
 async def update_user(
     user_id: str,
@@ -182,10 +152,10 @@ async def update_user(
     """Update a user."""
     try:
         updated_user = user_command_usecase.update_user(user_id, data)
-    except UserNotFoundError as err:
+    except CustomException as err:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=err.message,
+            detail=err.detail,
         )
     except Exception as err:
         logger.error(err)
@@ -199,11 +169,6 @@ async def update_user(
 @router.delete(
     "/users/{user_id}",
     status_code=status.HTTP_202_ACCEPTED,
-    responses={
-        status.HTTP_404_NOT_FOUND: {
-            "model": ErrorMessageUserNotFound,
-        },
-    },
 )
 async def delete_user(
     user_id: str,
@@ -212,10 +177,10 @@ async def delete_user(
     """Delete a bool."""
     try:
         user_command_usecase.delete_user_by_id(user_id)
-    except UserNotFoundError as err:
+    except CustomException as err:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=err.message,
+            detail=err.detail,
         )
     except Exception as err:
         logger.error(err)
@@ -228,11 +193,6 @@ async def delete_user(
     "/users/login",
     response_model=Token,
     status_code=status.HTTP_200_OK,
-    responses={
-        status.HTTP_401_UNAUTHORIZED: {
-            "model": ErrorMessageBadCredentials,
-        },
-    },
 )
 async def login_user(
     user: UserLoginModel,
@@ -248,10 +208,10 @@ async def login_user(
             access_token=create_access_token(potential_user.model_dump()),
             token_type="bearer",
         )
-    except UserBadCredentialsError as err:
+    except CustomException as err:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=err.message,
+            status_code=err.status_code,
+            detail=err.detail,
         )
     except Exception as err:
         logger.error(err)
@@ -266,11 +226,6 @@ async def login_user(
     "/users/{user_id}/books",
     response_model=list[BookReadModel],
     status_code=status.HTTP_200_OK,
-    responses={
-        status.HTTP_404_NOT_FOUND: {
-            "model": ErrorMessageUserNotFound,
-        },
-    },
 )
 async def get_user_books(
     user_id: str,
@@ -282,14 +237,12 @@ async def get_user_books(
         raise UserNotSuperError
     try:
         user = user_query_usecase.fetch_user_by_id(user_id)
-
         if user is None:
             raise UserNotFoundError
-
-    except UserNotFoundError as err:
+    except CustomException as err:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=err.message,
+            status_code=err.status_code,
+            detail=err.detail,
         )
     except Exception as err:
         logger.error(err)
@@ -302,7 +255,7 @@ async def get_user_books(
     except BooksNotFoundError as err:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=err.message,
+            detail=err.detail,
         )
     except Exception as err:
         logger.error(err)

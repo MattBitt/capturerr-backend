@@ -50,7 +50,7 @@ def test_create_book_with_existing_isbn(client: TestClient) -> None:
 
     # Assert
     assert response.status_code == 409
-    assert response.json()["detail"] == BookIsbnAlreadyExistsError.message
+    assert response.json()["detail"] == BookIsbnAlreadyExistsError.detail
 
 
 def test_get_books(client: TestClient, fake_book: dict[str, Any]) -> None:
@@ -73,7 +73,7 @@ def test_get_books_with_no_books(client: TestClient) -> None:
 
     # Assert
     assert response.status_code == 404
-    # assert response.json()["detail"] == BooksNotFoundError.message
+    # assert response.json()["detail"] == BooksNotFoundError.detail
 
 
 def test_get_book(client: TestClient, fake_book: dict[str, Any]) -> None:
@@ -99,7 +99,7 @@ def test_get_book_with_invalid_id(client: TestClient) -> None:
 
     # Assert
     assert response.status_code == 404
-    assert response.json()["detail"] == BookNotFoundError.message
+    assert response.json()["detail"] == BookNotFoundError.detail
 
 
 def test_update_book(client: TestClient, fake_book: dict[str, Any]) -> None:
@@ -148,7 +148,7 @@ def test_update_book_with_invalid_id(
 
     # Assert
     assert response.status_code == 404
-    # assert response.json()["detail"] == BookNotFoundError.message
+    assert response.json()["detail"] == BookNotFoundError.detail
 
 
 def test_delete_book(client: TestClient, fake_book: dict[str, Any]) -> None:
@@ -177,4 +177,3 @@ def test_delete_book_with_invalid_id(client: TestClient) -> None:
 
     # Assert
     assert response.status_code == 404
-    assert response.json()["detail"] == BookNotFoundError.message

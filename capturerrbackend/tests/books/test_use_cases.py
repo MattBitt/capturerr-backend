@@ -49,7 +49,7 @@ def test_create_book_duplicate_isbn(
         )
         assert True is False
     except BookIsbnAlreadyExistsError as e:
-        assert e.message == BookIsbnAlreadyExistsError.message
+        assert e.detail == BookIsbnAlreadyExistsError.detail
     except:
         assert True is False
         raise
