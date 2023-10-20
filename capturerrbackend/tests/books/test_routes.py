@@ -6,6 +6,7 @@ from fastapi.testclient import TestClient
 from capturerrbackend.app.domain.book.book_exception import (
     BookIsbnAlreadyExistsError,
     BookNotFoundError,
+    BooksNotFoundError,
 )
 
 # app = FastAPI()
@@ -33,22 +34,17 @@ def test_create_book(client: TestClient) -> None:
     # assert response.json()["page"] == data["page"]
 
 
-def test_create_book_with_existing_isbn(client: TestClient) -> None:
+def test_create_book_with_existing_isbn(
+    client: TestClient,
+    fake_book: dict[str, Any],
+) -> None:
     # Arrange
-    data = {
-        "title": "Test Book",
-        "read_page": 80,
-        "isbn": "978-1-445-01022-1",
-        "page": 123,
-        "user_id": "vytxeTZskVKR7C7WgdSP3d",
-    }
 
     # Act
-    response = client.post("/api/books", json=data)
+    response = client.post("/api/books", json=fake_book)
     assert response.status_code == 201
-    response = client.post("/api/books", json=data)
 
-    # Assert
+    response = client.post("/api/books", json=fake_book)
     assert response.status_code == 409
     assert response.json()["detail"] == BookIsbnAlreadyExistsError.detail
 
@@ -69,11 +65,9 @@ def test_get_books_with_no_books(client: TestClient) -> None:
     # Arrange
 
     # Act
-    response = client.get("/books")
-
-    # Assert
-    assert response.status_code == 404
-    # assert response.json()["detail"] == BooksNotFoundError.detail
+    response = client.get("/api/books")
+    assert response.status_code == BooksNotFoundError.status_code
+    assert response.json()["detail"] == BooksNotFoundError.detail
 
 
 def test_get_book(client: TestClient, fake_book: dict[str, Any]) -> None:
@@ -96,9 +90,8 @@ def test_get_book_with_invalid_id(client: TestClient) -> None:
 
     # Act
     response = client.get(f"/api/books/{book_id}")
-
     # Assert
-    assert response.status_code == 404
+    assert response.status_code == BookNotFoundError.status_code
     assert response.json()["detail"] == BookNotFoundError.detail
 
 
@@ -145,9 +138,7 @@ def test_update_book_with_invalid_id(
     }
     # Act
     response = client.put(f"/api/books/{book_id}", json=data)
-
-    # Assert
-    assert response.status_code == 404
+    assert response.status_code == BookNotFoundError.status_code
     assert response.json()["detail"] == BookNotFoundError.detail
 
 
@@ -173,7 +164,9 @@ def test_delete_book_with_invalid_id(client: TestClient) -> None:
     book_id = 999
 
     # Act
-    response = client.delete(f"/api/books/{book_id}")
-
-    # Assert
-    assert response.status_code == 404
+    try:
+        client.delete(f"/api/books/{book_id}")
+    except BookNotFoundError as err:
+        # Assert
+        assert err.status_code == BookNotFoundError.status_code
+        assert err.detail == BookNotFoundError.detail

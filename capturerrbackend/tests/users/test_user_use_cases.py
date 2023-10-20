@@ -1,8 +1,8 @@
 from typing import Any
 
 from capturerrbackend.app.domain.user.user_exception import (
-    UserAlreadyExistsError,
     UserBadCredentialsError,
+    UserNameAlreadyExistsError,
 )
 from capturerrbackend.app.usecase.user import (
     UserCommandUseCaseImpl,
@@ -47,8 +47,8 @@ def test_create_user_duplicate_username(
             user_model,
         )
         assert True is False
-    except UserAlreadyExistsError as e:
-        assert e.detail == UserAlreadyExistsError.detail
+    except UserNameAlreadyExistsError as e:
+        assert e.detail == UserNameAlreadyExistsError.detail
     except:
         assert True is False
         raise

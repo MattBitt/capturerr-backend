@@ -14,15 +14,11 @@ from .user_query_model import UserLoginModel, UserReadModel
 from .user_query_service import UserQueryService
 
 
-def myhash(password: str) -> str:
-    return "asdf" + password
-
-
 class UserQueryUseCase(ABC):
     """UserQueryUseCase defines a query usecase inteface related User entity."""
 
     @abstractmethod
-    def fetch_user_by_id(self, user_id: str) -> Optional[UserReadModel]:
+    def fetch_user_by_id(self, user_id: str) -> UserReadModel:
         """fetch_user_by_id fetches a user by id."""
         raise NotImplementedError
 
@@ -37,7 +33,7 @@ class UserQueryUseCase(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def login_user(self, data: UserLoginModel) -> Optional[UserReadModel]:
+    def login_user(self, data: UserLoginModel) -> UserReadModel:
         """fetch_user_by_id fetches a user by id."""
         raise NotImplementedError
 
@@ -48,7 +44,7 @@ class UserQueryUseCaseImpl(UserQueryUseCase):
     def __init__(self, user_query_service: UserQueryService):
         self.user_query_service: UserQueryService = user_query_service
 
-    def fetch_user_by_id(self, user_id: str) -> Optional[UserReadModel]:
+    def fetch_user_by_id(self, user_id: str) -> UserReadModel:
         """fetch_user_by_id fetches a user by id."""
         try:
             user = self.user_query_service.find_by_id(user_id)
@@ -81,7 +77,7 @@ class UserQueryUseCaseImpl(UserQueryUseCase):
 
         return user
 
-    def login_user(self, data: UserLoginModel) -> Optional[UserReadModel]:
+    def login_user(self, data: UserLoginModel) -> UserReadModel:
         logger.debug("In login_user usecase")
         try:
             existing_user = self.user_query_service.find_by_user_name(data.user_name)
@@ -93,6 +89,8 @@ class UserQueryUseCaseImpl(UserQueryUseCase):
                 raise UserBadCredentialsError
 
             user = self.user_query_service.find_by_user_name(data.user_name)
+            if user is None:
+                raise UserNotFoundError
         except:
             raise
 

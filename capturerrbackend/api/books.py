@@ -1,13 +1,8 @@
 from typing import Annotated, List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from loguru import logger
 
-from capturerrbackend.app.domain.book.book_exception import (
-    BookNotFoundError,
-    BooksNotFoundError,
-)
-from capturerrbackend.app.domain.custom_exception import CustomException
+from capturerrbackend.api.custom_error_route_handler import CustomErrorRouteHandler
 from capturerrbackend.app.domain.user.user_exception import UserNotFoundError
 from capturerrbackend.app.infrastructure.dependencies import (
     book_command_usecase,
@@ -24,7 +19,7 @@ from capturerrbackend.app.usecase.book import (
 )
 from capturerrbackend.app.usecase.user import UserQueryUseCase, UserReadModel
 
-router = APIRouter()
+router = APIRouter(route_class=CustomErrorRouteHandler)
 
 
 @router.post(
@@ -68,32 +63,12 @@ def create_book(
     response_model=List[BookReadModel],
     status_code=status.HTTP_200_OK,
 )
+#
 async def get_books(
     book_query_usecase: BookQueryUseCase = Depends(book_query_usecase),
 ) -> List[BookReadModel]:
     """Get a list of books."""
-    try:
-        books = book_query_usecase.fetch_books()
-
-    except CustomException as err:
-        raise HTTPException(
-            status_code=err.status_code,
-            detail=err.detail,
-        )
-
-    except Exception as err:
-        logger.error(err)
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        )
-
-    if len(books) == 0:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=BooksNotFoundError.detail,
-        )
-
-    return books
+    return book_query_usecase.fetch_books()
 
 
 @router.get(
@@ -106,20 +81,7 @@ async def get_book(
     book_query_usecase: BookQueryUseCase = Depends(book_query_usecase),
 ) -> Optional[BookReadModel]:
     """Get a book."""
-    try:
-        book = book_query_usecase.fetch_book_by_id(book_id)
-    except BookNotFoundError as err:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=err.detail,
-        )
-    except Exception as err:
-        logger.error(err)
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        )
-
-    return book
+    return book_query_usecase.fetch_book_by_id(book_id)
 
 
 @router.put(
@@ -133,20 +95,7 @@ async def update_book(
     book_command_usecase: BookCommandUseCase = Depends(book_command_usecase),
 ) -> Optional[BookReadModel]:
     """Update a book."""
-    try:
-        updated_book = book_command_usecase.update_book(book_id, data)
-    except BookNotFoundError as err:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=err.detail,
-        )
-    except Exception as err:
-        logger.error(err)
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        )
-
-    return updated_book
+    return book_command_usecase.update_book(book_id, data)
 
 
 @router.delete(
@@ -157,16 +106,5 @@ async def delete_book(
     book_id: str,
     book_command_usecase: BookCommandUseCase = Depends(book_command_usecase),
 ) -> None:
-    """Delete a bool."""
-    try:
-        book_command_usecase.delete_book_by_id(book_id)
-    except BookNotFoundError as err:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=err.detail,
-        )
-    except Exception as err:
-        logger.error(err)
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        )
+    """Delete a book."""
+    book_command_usecase.delete_book_by_id(book_id)

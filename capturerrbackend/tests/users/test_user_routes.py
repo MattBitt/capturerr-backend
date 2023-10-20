@@ -3,7 +3,7 @@ from typing import Any
 from fastapi.testclient import TestClient
 
 from capturerrbackend.app.domain.user.user_exception import (
-    UserAlreadyExistsError,
+    UserNameAlreadyExistsError,
     UserNotFoundError,
 )
 
@@ -39,7 +39,7 @@ def test_create_user_with_existing_user_name(
 
     # Assert
     assert response.status_code == 409
-    assert response.json()["detail"] == UserAlreadyExistsError.detail
+    assert response.json()["detail"] == UserNameAlreadyExistsError.detail
 
 
 def test_get_users(client: TestClient, fake_user: dict[str, Any]) -> None:

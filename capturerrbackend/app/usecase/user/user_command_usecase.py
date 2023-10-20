@@ -7,7 +7,7 @@ from loguru import logger
 
 from capturerrbackend.app.domain.user.user import User
 from capturerrbackend.app.domain.user.user_exception import (
-    UserAlreadyExistsError,
+    UserNameAlreadyExistsError,
     UserNotFoundError,
 )
 from capturerrbackend.app.domain.user.user_repository import UserRepository
@@ -86,7 +86,7 @@ class UserCommandUseCaseImpl(UserCommandUseCase):
 
             existing_user = self.uow.user_repository.find_by_user_name(user.user_name)
             if existing_user is not None:
-                raise UserAlreadyExistsError
+                raise UserNameAlreadyExistsError
 
             self.uow.user_repository.create(user)
             self.uow.commit()

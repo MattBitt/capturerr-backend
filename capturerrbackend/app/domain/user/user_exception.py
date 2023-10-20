@@ -23,15 +23,15 @@ class UsersNotFoundError(CustomException):
         return UsersNotFoundError.detail
 
 
-class UserAlreadyExistsError(CustomException):
+class UserNameAlreadyExistsError(CustomException):
     """UserIsbnAlreadyExistsError is an error that occurs when a
     user with the same already exists."""
 
     status_code = 409
-    detail = "The user you specified already exists."
+    detail = "The username you specified already exists."
 
     def __str__(self) -> str:
-        return UserAlreadyExistsError.detail
+        return UserNameAlreadyExistsError.detail
 
 
 class UserBadCredentialsError(CustomException):

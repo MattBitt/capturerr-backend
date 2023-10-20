@@ -46,7 +46,7 @@ class BookQueryUseCaseImpl(BookQueryUseCase):
         """fetch_books fetches books."""
         try:
             books = self.book_query_service.find_all()
-            if books is None:
+            if not books:
                 raise BooksNotFoundError
         except:
             raise

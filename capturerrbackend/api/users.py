@@ -1,17 +1,13 @@
 from typing import Annotated, List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, status
 from loguru import logger
 
-from capturerrbackend.app.domain.book.book_exception import BooksNotFoundError
-from capturerrbackend.app.domain.custom_exception import CustomException
-from capturerrbackend.app.domain.user.user_exception import (
-    UserNotFoundError,
-    UserNotSuperError,
-)
+# from capturerrbackend.app.domain.book.book_exception import BooksNotFoundError
+from capturerrbackend.api.custom_error_route_handler import CustomErrorRouteHandler
+from capturerrbackend.app.domain.user.user_exception import UserNotSuperError
 from capturerrbackend.app.infrastructure.dependencies import (
     book_query_usecase,
-    get_current_active_super_user,
     get_current_active_user,
     user_command_usecase,
     user_query_usecase,
@@ -28,7 +24,7 @@ from capturerrbackend.app.usecase.user import (
     create_access_token,
 )
 
-router = APIRouter()
+router = APIRouter(route_class=CustomErrorRouteHandler)
 
 
 @router.post(
@@ -41,20 +37,7 @@ def create_user(
     user_command_usecase: Annotated[UserCommandUseCase, Depends(user_command_usecase)],
 ) -> Optional[UserReadModel]:
     """Create a user."""
-    try:
-        user = user_command_usecase.create_user(data)
-    except CustomException as err:
-        raise HTTPException(
-            status_code=err.status_code,
-            detail=err.detail,
-        )
-    except Exception as e:
-        logger.error(e)
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        )
-
-    return user
+    return user_command_usecase.create_user(data)
 
 
 @router.get(
@@ -68,20 +51,7 @@ async def get_users(
 ) -> List[UserReadModel]:
     """Get a list of users."""
     logger.debug(f"Getting all users.  Requested by {active_user.user_name}")
-    try:
-        users = user_query_usecase.fetch_users()
-    except CustomException as err:
-        raise HTTPException(
-            status_code=err.status_code,
-            detail=err.detail,
-        )
-    except Exception as err:
-        logger.error(err)
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        )
-
-    return users
+    return user_query_usecase.fetch_users()
 
 
 @router.get(
@@ -95,20 +65,7 @@ async def get_me(
 ) -> Optional[UserReadModel]:
     """Get a user."""
     logger.debug("In get_me route")
-    try:
-        user = user_query_usecase.fetch_user_by_user_name(active_user.user_name)
-    except CustomException as err:
-        raise HTTPException(
-            status_code=err.status_code,
-            detail=err.detail,
-        )
-    except Exception as err:
-        logger.error(err)
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        )
-
-    return user
+    return user_query_usecase.fetch_user_by_user_name(active_user.user_name)
 
 
 @router.get(
@@ -118,25 +75,10 @@ async def get_me(
 )
 async def get_user(
     user_id: str,
-    admin_user: Annotated[UserReadModel, Depends(get_current_active_super_user)],
     user_query_usecase: Annotated[UserQueryUseCase, Depends(user_query_usecase)],
 ) -> Optional[UserReadModel]:
     """Get a user."""
-    logger.debug("This will only be logged if the user is an admin.")
-    try:
-        user = user_query_usecase.fetch_user_by_id(user_id)
-    except CustomException as err:
-        raise HTTPException(
-            status_code=err.status_code,
-            detail=err.detail,
-        )
-    except Exception as err:
-        logger.error(err)
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        )
-
-    return user
+    return user_query_usecase.fetch_user_by_id(user_id)
 
 
 @router.put(
@@ -150,20 +92,7 @@ async def update_user(
     user_command_usecase: Annotated[UserCommandUseCase, Depends(user_command_usecase)],
 ) -> Optional[UserReadModel]:
     """Update a user."""
-    try:
-        updated_user = user_command_usecase.update_user(user_id, data)
-    except CustomException as err:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=err.detail,
-        )
-    except Exception as err:
-        logger.error(err)
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        )
-
-    return updated_user
+    return user_command_usecase.update_user(user_id, data)
 
 
 @router.delete(
@@ -174,19 +103,8 @@ async def delete_user(
     user_id: str,
     user_command_usecase: Annotated[UserCommandUseCase, Depends(user_command_usecase)],
 ) -> None:
-    """Delete a bool."""
-    try:
-        user_command_usecase.delete_user_by_id(user_id)
-    except CustomException as err:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=err.detail,
-        )
-    except Exception as err:
-        logger.error(err)
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        )
+    """Delete a user."""
+    user_command_usecase.delete_user_by_id(user_id)
 
 
 @router.post(
@@ -199,25 +117,12 @@ async def login_user(
     user_query_usecase: Annotated[UserQueryUseCase, Depends(user_query_usecase)],
     user_command_usecase: Annotated[UserCommandUseCase, Depends(user_command_usecase)],
 ) -> Token:
-    """Get a user."""
-    try:
-        potential_user = user_query_usecase.login_user(user)
-        if potential_user is None:
-            raise UserNotFoundError
-        token = Token(
-            access_token=create_access_token(potential_user.model_dump()),
-            token_type="bearer",
-        )
-    except CustomException as err:
-        raise HTTPException(
-            status_code=err.status_code,
-            detail=err.detail,
-        )
-    except Exception as err:
-        logger.error(err)
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        )
+    potential_user = user_query_usecase.login_user(user)
+
+    token = Token(
+        access_token=create_access_token(potential_user.model_dump()),
+        token_type="bearer",
+    )
 
     return token
 
@@ -235,32 +140,7 @@ async def get_user_books(
 ) -> Optional[list[BookReadModel]]:
     if (current_user.id != user_id) and (current_user.is_superuser is False):
         raise UserNotSuperError
-    try:
-        user = user_query_usecase.fetch_user_by_id(user_id)
-        if user is None:
-            raise UserNotFoundError
-    except CustomException as err:
-        raise HTTPException(
-            status_code=err.status_code,
-            detail=err.detail,
-        )
-    except Exception as err:
-        logger.error(err)
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        )
 
-    try:
-        books = book_query_usecase.fetch_books_by_user_id(user.id)
-    except BooksNotFoundError as err:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=err.detail,
-        )
-    except Exception as err:
-        logger.error(err)
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        )
-
+    user = user_query_usecase.fetch_user_by_id(user_id)
+    books = book_query_usecase.fetch_books_by_user_id(user.id)
     return books
