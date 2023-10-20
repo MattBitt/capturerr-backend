@@ -116,6 +116,12 @@ test: ## Run the test suite
 
 	poetry run pytest -vv -s --cache-clear ./
 
+
+.PHONY: testreport
+testreport:
+	poetry run coverage run -m pytest -vv . && coverage report --show-missing
+
+
 .PHONY: test_config
 test_config: ## run the test_config utility to output env settings
 	poetry run python capturerrbackend/tests/test_config.py dev

@@ -1,5 +1,4 @@
 from collections import defaultdict
-from functools import wraps
 from typing import Any, Callable, Coroutine
 
 from fastapi import HTTPException, Request, Response, status
@@ -51,6 +50,7 @@ class CustomErrorRouteHandler(APIRoute):
                         },
                     ),
                 )
+
             except Exception as err:
                 logger.error(err)
                 raise HTTPException(
@@ -71,29 +71,3 @@ class CustomErrorRouteHandler(APIRoute):
 
 # example usage:
 # router = APIRouter(route_class=CustomErrorRouteHandler)
-
-
-def my_error_handler(func: Any) -> Any:
-    @wraps(func)
-    def decorator(*args: Any, **kwargs: Any) -> Any:
-        try:
-            return func(*args, **kwargs)
-
-        except CustomException as err:
-            logger.info(err.detail)
-            return JSONResponse(
-                status_code=err.status_code,
-                content={
-                    "error": "Client Error",
-                    "detail": str(err.detail),
-                    "status_code": str(err.status_code),
-                },
-            )
-
-        except Exception as err:
-            logger.error(err)
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            )
-
-    return decorator
