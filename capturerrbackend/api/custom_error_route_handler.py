@@ -41,10 +41,10 @@ class CustomErrorRouteHandler(APIRoute):
             except RequestValidationError as exc:
                 readable_error = await self.readable_errors_from_pydantic_message(exc)
                 return JSONResponse(
-                    status_code=status.HTTP_400_BAD_REQUEST,
+                    status_code=422,
                     content=jsonable_encoder(
                         {
-                            "error": "Invalid Request",
+                            "error": "Validation Error",
                             "details": readable_error,
                             "status_code": 422,
                         },

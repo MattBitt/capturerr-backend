@@ -97,11 +97,16 @@ async def get_my_books(
 )
 async def get_user(
     user_id: str,
+    active_user: Annotated[UserReadModel, Depends(get_current_active_user)],
     book_query_usecase: Annotated[BookQueryUseCase, Depends(book_query_usecase)],
     user_query_usecase: Annotated[UserQueryUseCase, Depends(user_query_usecase)],
 ) -> UserReadModel:
     logger.debug(f"In route: (GET) '/users/{user_id}'")
+
     user = user_query_usecase.fetch_user_by_id(user_id)
+    if user.id != active_user.id and not active_user.is_superuser:
+        raise UserNotSuperError
+
     books = book_query_usecase.fetch_books_by_user_id(user.id)
     user.books = books
     return user
@@ -153,26 +158,6 @@ async def login_user(
     return token
 
 
-# @router.get(
-#     "/users/{user_id}/books",
-#     response_model=list["BookReadModel"],
-#     status_code=status.HTTP_200_OK,
-# )
-# async def get_user_books(
-#     user_id: str,
-#     current_user: Annotated[UserReadModel, Depends(get_current_active_user)],
-#     book_query_usecase: Annotated[BookQueryUseCase, Depends(book_query_usecase)],
-#     user_query_usecase: Annotated[UserQueryUseCase, Depends(user_query_usecase)],
-# ) -> list[Any]:
-#     """Get all books belonging to a user"""
-#     if (current_user.id != user_id) and (current_user.is_superuser is False):
-#         raise UserNotSuperError
-
-#     user = user_query_usecase.fetch_user_by_id(user_id)
-#     books = book_query_usecase.fetch_books_by_user_id(user.id)
-#     return books
-
-
 @router.post(
     "/users/{user_id}/books",
     response_model=UserReadModel,
@@ -192,7 +177,3 @@ async def create_book_for_user(
     book.user_id = user_id
     book_command_usecase.create_book(data=book)
     return user_query_usecase.fetch_user_by_id(user_id)
-
-    # book_data["user_id"] = user.id
-    # book = book_command_usecase.create_book(book_data)
-    # user_command_usecase.add_book(user)

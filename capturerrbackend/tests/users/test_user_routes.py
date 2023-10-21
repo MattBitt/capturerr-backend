@@ -105,7 +105,8 @@ def test_get_user_with_invalid_id(client: TestClient) -> None:
     response = client.get(f"/api/users/{user_id}")
 
     # Assert
-    assert response.status_code == 404
+    # TODO How do I know if a bad id is
+    assert response.status_code == UserNotFoundError.status_code
     assert response.json()["detail"] == UserNotFoundError.detail
 
 
@@ -151,7 +152,7 @@ def test_update_user_with_invalid_id(
     response = client.put(f"/api/users/{user_id}", json=data)
 
     # Assert
-    assert response.status_code == 404
+    assert response.status_code == UserNotFoundError.status_code
     assert response.json()["detail"] == UserNotFoundError.detail
 
 
