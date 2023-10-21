@@ -8,6 +8,7 @@ from sqlalchemy import create_engine, exc
 from sqlalchemy.orm import Session, sessionmaker
 
 from capturerrbackend.app.domain.book.book_repository import BookRepository
+from capturerrbackend.app.domain.tag.tag_repository import TagRepository
 from capturerrbackend.app.domain.user.user_exception import (
     UserBadCredentialsError,
     UserNotFoundError,
@@ -18,6 +19,11 @@ from capturerrbackend.app.infrastructure.sqlite.book import (
     BookCommandUseCaseUnitOfWorkImpl,
     BookQueryServiceImpl,
     BookRepositoryImpl,
+)
+from capturerrbackend.app.infrastructure.sqlite.tag import (
+    TagCommandUseCaseUnitOfWorkImpl,
+    TagQueryServiceImpl,
+    TagRepositoryImpl,
 )
 from capturerrbackend.app.infrastructure.sqlite.user import (
     UserCommandUseCaseUnitOfWorkImpl,
@@ -31,6 +37,14 @@ from capturerrbackend.app.usecase.book import (
     BookQueryService,
     BookQueryUseCase,
     BookQueryUseCaseImpl,
+)
+from capturerrbackend.app.usecase.tag import (
+    TagCommandUseCase,
+    TagCommandUseCaseImpl,
+    TagCommandUseCaseUnitOfWork,
+    TagQueryService,
+    TagQueryUseCase,
+    TagQueryUseCaseImpl,
 )
 from capturerrbackend.app.usecase.user import (
     TokenData,
@@ -134,3 +148,23 @@ def book_command_usecase(
         book_repository=book_repository,
     )
     return BookCommandUseCaseImpl(uow)
+
+
+def tag_query_usecase(
+    session: Annotated[Session, Depends(get_sync_session)],
+) -> TagQueryUseCase:
+    """Get a tag query use case."""
+    tag_query_service: TagQueryService = TagQueryServiceImpl(session)
+    return TagQueryUseCaseImpl(tag_query_service)
+
+
+def tag_command_usecase(
+    session: Annotated[Session, Depends(get_sync_session)],
+) -> TagCommandUseCase:
+    """Get a tag command use case."""
+    tag_repository: TagRepository = TagRepositoryImpl(session)
+    uow: TagCommandUseCaseUnitOfWork = TagCommandUseCaseUnitOfWorkImpl(
+        session,
+        tag_repository=tag_repository,
+    )
+    return TagCommandUseCaseImpl(uow)

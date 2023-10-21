@@ -13,6 +13,7 @@ from sqlalchemy.orm import Session, sessionmaker
 
 from capturerrbackend.app.application import get_app
 from capturerrbackend.app.domain.book.book_repository import BookRepository
+from capturerrbackend.app.domain.tag.tag_repository import TagRepository
 from capturerrbackend.app.domain.user.user_repository import UserRepository
 from capturerrbackend.app.infrastructure.dependencies import (
     book_command_usecase as new_bcu,
@@ -23,6 +24,9 @@ from capturerrbackend.app.infrastructure.dependencies import (
     get_sync_session,
 )
 from capturerrbackend.app.infrastructure.dependencies import (
+    tag_command_usecase as new_tcu,
+)
+from capturerrbackend.app.infrastructure.dependencies import (
     user_command_usecase as new_ucu,
 )
 from capturerrbackend.app.infrastructure.sqlite.book import (
@@ -31,6 +35,11 @@ from capturerrbackend.app.infrastructure.sqlite.book import (
     BookRepositoryImpl,
 )
 from capturerrbackend.app.infrastructure.sqlite.database import Base
+from capturerrbackend.app.infrastructure.sqlite.tag import (
+    TagCommandUseCaseUnitOfWorkImpl,
+    TagQueryServiceImpl,
+    TagRepositoryImpl,
+)
 from capturerrbackend.app.infrastructure.sqlite.user import (
     UserCommandUseCaseUnitOfWorkImpl,
     UserQueryServiceImpl,
@@ -45,6 +54,16 @@ from capturerrbackend.app.usecase.book import (
     BookQueryUseCase,
     BookQueryUseCaseImpl,
     BookReadModel,
+)
+from capturerrbackend.app.usecase.tag import (
+    TagCommandUseCase,
+    TagCommandUseCaseImpl,
+    TagCommandUseCaseUnitOfWork,
+    TagCreateModel,
+    TagQueryService,
+    TagQueryUseCase,
+    TagQueryUseCaseImpl,
+    TagReadModel,
 )
 from capturerrbackend.app.usecase.user import (
     UserCommandUseCase,
@@ -95,6 +114,18 @@ def fake_user() -> dict[str, Any]:
 
 
 @pytest.fixture
+def fake_tag() -> dict[str, Any]:
+    return {
+        "text": "test-monotone",
+        "created_at": get_int_timestamp(datetime.now()),
+        "updated_at": get_int_timestamp(datetime.now()),
+        "deleted_at": None,
+        "user_id": "vytxeTZskVKR7C7WgdSP3d",
+        "capture_id": "y8ghf;fldsjrewqpiog",
+    }
+
+
+@pytest.fixture
 def new_user_in_db(
     fake_user: dict[str, Any],
     user_command_usecase: Annotated[UserCommandUseCase, Depends(new_ucu)],
@@ -121,6 +152,21 @@ def new_book_in_db(
     book_in_db = book_command_usecase.create_book(book)
     assert book_in_db is not None
     return book_in_db
+
+
+@pytest.fixture
+def new_tag_in_db(
+    new_user_in_db: UserReadModel,
+    fake_tag: dict[str, Any],
+    tag_command_usecase: Annotated[TagCommandUseCase, Depends(new_tcu)],
+) -> TagReadModel:
+    ...
+    fake_tag["user_id"] = new_user_in_db.id
+    tag = TagCreateModel.model_validate(fake_tag)
+
+    tag_in_db = tag_command_usecase.create_tag(tag)
+    assert tag_in_db is not None
+    return tag_in_db
 
 
 def reset_db() -> None:
@@ -232,6 +278,23 @@ def user_command_usecase(db_fixture: Session) -> UserCommandUseCase:
         user_repository=user_repository,
     )
     return UserCommandUseCaseImpl(uow)
+
+
+@pytest.fixture()
+def tag_query_usecase(db_fixture: Session) -> TagQueryUseCase:
+    """Get a tag query use case."""
+    tag_query_service: TagQueryService = TagQueryServiceImpl(db_fixture)
+    return TagQueryUseCaseImpl(tag_query_service)
+
+
+@pytest.fixture()
+def tag_command_usecase(db_fixture: Session) -> TagCommandUseCase:
+    tag_repository: TagRepository = TagRepositoryImpl(db_fixture)
+    uow: TagCommandUseCaseUnitOfWork = TagCommandUseCaseUnitOfWorkImpl(
+        db_fixture,
+        tag_repository=tag_repository,
+    )
+    return TagCommandUseCaseImpl(uow)
 
 
 @pytest.fixture
