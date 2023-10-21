@@ -1,12 +1,16 @@
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 from sqlalchemy import ForeignKey, String
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from capturerrbackend.app.domain.book.book import Book
 from capturerrbackend.app.domain.book.isbn import Isbn
 from capturerrbackend.app.infrastructure.sqlite.database import Base
 from capturerrbackend.app.usecase.book import BookReadModel
+
+if TYPE_CHECKING:
+    from capturerrbackend.app.infrastructure.sqlite import UserDTO
 
 
 def unixtimestamp() -> int:
@@ -21,7 +25,7 @@ class BookDTO(Base):
     title: Mapped[str] = mapped_column(nullable=False)
     page: Mapped[int] = mapped_column(nullable=False)
     user_id: Mapped[str] = mapped_column(ForeignKey("user.id"))
-    # user: Mapped["UserDTO"] = relationship("UserDTO", back_populates="books")
+    user: Mapped["UserDTO"] = relationship(back_populates="books")
 
     read_page: Mapped[int] = mapped_column(nullable=False, default=0)
 

@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 """User domain"""
 
-from typing import Optional
+from typing import TYPE_CHECKING, List, Optional
+
+if TYPE_CHECKING:
+    from capturerrbackend.app.usecase.book.book_query_model import BookReadModel
 
 
 class User:
@@ -20,6 +23,7 @@ class User:
         created_at: Optional[int] = None,
         updated_at: Optional[int] = None,
         deleted_at: Optional[int] = None,
+        books: List["BookReadModel"] = [],
     ):
         self.user_id: str = user_id
         self.user_name: str = user_name
@@ -32,6 +36,7 @@ class User:
         self.created_at: Optional[int] = created_at
         self.updated_at: Optional[int] = updated_at
         self.deleted_at: Optional[int] = deleted_at
+        self.books: Optional[List["BookReadModel"]] = books
 
     def __eq__(self, obj: object) -> bool:
         # TODO where should this equality check be?

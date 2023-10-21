@@ -69,7 +69,7 @@ def user_query_usecase(
 
 
 def user_command_usecase(
-    db_fixture: Session = Depends(get_sync_session),
+    db_fixture: Annotated[Session, Depends(get_sync_session)],
 ) -> UserCommandUseCase:
     """Get a user command use case."""
     user_repository: UserRepository = UserRepositoryImpl(db_fixture)
@@ -117,7 +117,7 @@ def get_current_active_super_user(
 
 
 def book_query_usecase(
-    session: Session = Depends(get_sync_session),
+    session: Annotated[Session, Depends(get_sync_session)],
 ) -> BookQueryUseCase:
     """Get a book query use case."""
     book_query_service: BookQueryService = BookQueryServiceImpl(session)
@@ -125,7 +125,7 @@ def book_query_usecase(
 
 
 def book_command_usecase(
-    session: Session = Depends(get_sync_session),
+    session: Annotated[Session, Depends(get_sync_session)],
 ) -> BookCommandUseCase:
     """Get a book command use case."""
     book_repository: BookRepository = BookRepositoryImpl(session)

@@ -1,9 +1,9 @@
 from collections.abc import AsyncIterator, Iterator
 from datetime import datetime
-from typing import Any
+from typing import Annotated, Any
 
 import pytest
-from fastapi import FastAPI, HTTPException, status
+from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.testclient import TestClient
 from httpx import AsyncClient
 from loguru import logger
@@ -15,9 +15,15 @@ from capturerrbackend.app.application import get_app
 from capturerrbackend.app.domain.book.book_repository import BookRepository
 from capturerrbackend.app.domain.user.user_repository import UserRepository
 from capturerrbackend.app.infrastructure.dependencies import (
+    book_command_usecase as new_bcu,
+)
+from capturerrbackend.app.infrastructure.dependencies import (
     get_current_active_super_user,
     get_current_active_user,
     get_sync_session,
+)
+from capturerrbackend.app.infrastructure.dependencies import (
+    user_command_usecase as new_ucu,
 )
 from capturerrbackend.app.infrastructure.sqlite.book import (
     BookCommandUseCaseUnitOfWorkImpl,
@@ -34,9 +40,11 @@ from capturerrbackend.app.usecase.book import (
     BookCommandUseCase,
     BookCommandUseCaseImpl,
     BookCommandUseCaseUnitOfWork,
+    BookCreateModel,
     BookQueryService,
     BookQueryUseCase,
     BookQueryUseCaseImpl,
+    BookReadModel,
 )
 from capturerrbackend.app.usecase.user import (
     UserCommandUseCase,
@@ -48,7 +56,7 @@ from capturerrbackend.app.usecase.user import (
     UserQueryUseCaseImpl,
     UserReadModel,
 )
-from capturerrbackend.config.configurator import config  # type: ignore
+from capturerrbackend.config.configurator import config
 from capturerrbackend.utils.utils import get_int_timestamp
 
 engine = create_engine(str(config.db_url), connect_args={"check_same_thread": False})
@@ -84,6 +92,35 @@ def fake_user() -> dict[str, Any]:
         "updated_at": get_int_timestamp(datetime.now()),
         "deleted_at": None,
     }
+
+
+@pytest.fixture
+def new_user_in_db(
+    fake_user: dict[str, Any],
+    user_command_usecase: Annotated[UserCommandUseCase, Depends(new_ucu)],
+) -> UserReadModel:
+    ...
+    user = UserCreateModel.model_validate(fake_user)
+
+    user_in_db = user_command_usecase.create_user(user)
+
+    assert user_in_db is not None
+    return user_in_db
+
+
+@pytest.fixture
+def new_book_in_db(
+    new_user_in_db: UserReadModel,
+    fake_book: dict[str, Any],
+    book_command_usecase: Annotated[BookCommandUseCase, Depends(new_bcu)],
+) -> BookReadModel:
+    ...
+    fake_book["user_id"] = new_user_in_db.id
+    book = BookCreateModel.model_validate(fake_book)
+
+    book_in_db = book_command_usecase.create_book(book)
+    assert book_in_db is not None
+    return book_in_db
 
 
 def reset_db() -> None:

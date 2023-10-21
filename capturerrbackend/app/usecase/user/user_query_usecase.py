@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import List, Optional
+from typing import List
 
 from loguru import logger
 
@@ -28,7 +28,7 @@ class UserQueryUseCase(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def fetch_user_by_user_name(self, user_name: str) -> Optional[UserReadModel]:
+    def fetch_user_by_user_name(self, user_name: str) -> UserReadModel:
         """fetch_user_by_id fetches a user by id."""
         raise NotImplementedError
 
@@ -66,7 +66,7 @@ class UserQueryUseCaseImpl(UserQueryUseCase):
 
         return users
 
-    def fetch_user_by_user_name(self, user_name: str) -> Optional[UserReadModel]:
+    def fetch_user_by_user_name(self, user_name: str) -> UserReadModel:
         """fetch_user_by_user_name fetches a user by user_name"""
         try:
             user = self.user_query_service.find_by_user_name(user_name)

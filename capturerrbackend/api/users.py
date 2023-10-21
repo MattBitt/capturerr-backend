@@ -3,16 +3,21 @@ from typing import Annotated, List, Optional
 from fastapi import APIRouter, Depends, status
 from loguru import logger
 
-# from capturerrbackend.app.domain.book.book_exception import BooksNotFoundError
 from capturerrbackend.api.custom_error_route_handler import CustomErrorRouteHandler
 from capturerrbackend.app.domain.user.user_exception import UserNotSuperError
 from capturerrbackend.app.infrastructure.dependencies import (
+    book_command_usecase,
     book_query_usecase,
     get_current_active_user,
     user_command_usecase,
     user_query_usecase,
 )
-from capturerrbackend.app.usecase.book import BookQueryUseCase, BookReadModel
+from capturerrbackend.app.usecase.book import (
+    BookCommandUseCase,
+    BookCreateModel,
+    BookQueryUseCase,
+    BookReadModel,
+)
 from capturerrbackend.app.usecase.user import (
     Token,
     UserCommandUseCase,
@@ -35,7 +40,7 @@ router = APIRouter(route_class=CustomErrorRouteHandler)
 def create_user(
     data: UserCreateModel,
     user_command_usecase: Annotated[UserCommandUseCase, Depends(user_command_usecase)],
-) -> Optional[UserReadModel]:
+) -> UserReadModel:
     """Create a user."""
     return user_command_usecase.create_user(data)
 
@@ -45,7 +50,7 @@ def create_user(
     response_model=List[UserReadModel],
     status_code=status.HTTP_200_OK,
 )
-async def get_users(
+def get_users(
     active_user: UserReadModel = Depends(get_current_active_user),
     user_query_usecase: UserQueryUseCase = Depends(user_query_usecase),
 ) -> List[UserReadModel]:
@@ -62,10 +67,27 @@ async def get_users(
 async def get_me(
     active_user: Annotated[UserReadModel, Depends(get_current_active_user)],
     user_query_usecase: Annotated[UserQueryUseCase, Depends(user_query_usecase)],
-) -> Optional[UserReadModel]:
+    book_query_usecase: Annotated[BookQueryUseCase, Depends(book_query_usecase)],
+) -> UserReadModel:
     """Get a user."""
     logger.debug("In get_me route")
-    return user_query_usecase.fetch_user_by_user_name(active_user.user_name)
+    user = user_query_usecase.fetch_user_by_user_name(active_user.user_name)
+    user.books = book_query_usecase.fetch_books_by_user_id(user.id)
+    return user
+
+
+@router.get(
+    "/users/me/books",
+    response_model=List[BookReadModel],
+    status_code=status.HTTP_200_OK,
+)
+async def get_my_books(
+    active_user: Annotated[UserReadModel, Depends(get_current_active_user)],
+    book_query_usecase: Annotated[BookQueryUseCase, Depends(book_query_usecase)],
+) -> List[BookReadModel]:
+    """Get a user."""
+    logger.debug("In route: (GET) '/users/me/books'")
+    return book_query_usecase.fetch_books_by_user_id(active_user.id)
 
 
 @router.get(
@@ -75,10 +97,14 @@ async def get_me(
 )
 async def get_user(
     user_id: str,
+    book_query_usecase: Annotated[BookQueryUseCase, Depends(book_query_usecase)],
     user_query_usecase: Annotated[UserQueryUseCase, Depends(user_query_usecase)],
-) -> Optional[UserReadModel]:
-    """Get a user."""
-    return user_query_usecase.fetch_user_by_id(user_id)
+) -> UserReadModel:
+    logger.debug(f"In route: (GET) '/users/{user_id}'")
+    user = user_query_usecase.fetch_user_by_id(user_id)
+    books = book_query_usecase.fetch_books_by_user_id(user.id)
+    user.books = books
+    return user
 
 
 @router.put(
@@ -127,20 +153,46 @@ async def login_user(
     return token
 
 
-@router.get(
+# @router.get(
+#     "/users/{user_id}/books",
+#     response_model=list["BookReadModel"],
+#     status_code=status.HTTP_200_OK,
+# )
+# async def get_user_books(
+#     user_id: str,
+#     current_user: Annotated[UserReadModel, Depends(get_current_active_user)],
+#     book_query_usecase: Annotated[BookQueryUseCase, Depends(book_query_usecase)],
+#     user_query_usecase: Annotated[UserQueryUseCase, Depends(user_query_usecase)],
+# ) -> list[Any]:
+#     """Get all books belonging to a user"""
+#     if (current_user.id != user_id) and (current_user.is_superuser is False):
+#         raise UserNotSuperError
+
+#     user = user_query_usecase.fetch_user_by_id(user_id)
+#     books = book_query_usecase.fetch_books_by_user_id(user.id)
+#     return books
+
+
+@router.post(
     "/users/{user_id}/books",
-    response_model=list[BookReadModel],
-    status_code=status.HTTP_200_OK,
+    response_model=UserReadModel,
+    status_code=status.HTTP_201_CREATED,
 )
-async def get_user_books(
+async def create_book_for_user(
     user_id: str,
+    book: BookCreateModel,
     current_user: Annotated[UserReadModel, Depends(get_current_active_user)],
-    book_query_usecase: Annotated[BookQueryUseCase, Depends(book_query_usecase)],
+    book_command_usecase: Annotated[BookCommandUseCase, Depends(book_command_usecase)],
     user_query_usecase: Annotated[UserQueryUseCase, Depends(user_query_usecase)],
-) -> Optional[list[BookReadModel]]:
+    user_command_usecase: Annotated[UserCommandUseCase, Depends(user_command_usecase)],
+) -> UserReadModel:
     if (current_user.id != user_id) and (current_user.is_superuser is False):
         raise UserNotSuperError
 
-    user = user_query_usecase.fetch_user_by_id(user_id)
-    books = book_query_usecase.fetch_books_by_user_id(user.id)
-    return books
+    book.user_id = user_id
+    book_command_usecase.create_book(data=book)
+    return user_query_usecase.fetch_user_by_id(user_id)
+
+    # book_data["user_id"] = user.id
+    # book = book_command_usecase.create_book(book_data)
+    # user_command_usecase.add_book(user)

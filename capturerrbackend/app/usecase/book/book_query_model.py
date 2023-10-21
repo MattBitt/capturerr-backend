@@ -1,8 +1,9 @@
-from typing import cast
+from typing import Optional, cast
 
 from pydantic import BaseModel, ConfigDict, Field
 
 from capturerrbackend.app.domain.book.book import Book
+from capturerrbackend.app.usecase.user.user_query_model import UserReadModel
 
 
 class BookReadModel(BaseModel):
@@ -19,6 +20,7 @@ class BookReadModel(BaseModel):
     read_page: int = Field(ge=0, example=120)
     created_at: int = Field(example=1136214245000)
     updated_at: int = Field(example=1136214245000)
+    user: Optional[UserReadModel] = Field(default=None)
 
     @staticmethod
     def from_entity(book: Book) -> "BookReadModel":

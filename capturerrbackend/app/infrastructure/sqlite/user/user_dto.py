@@ -1,10 +1,14 @@
 from datetime import datetime
+from typing import TYPE_CHECKING, List
 
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from capturerrbackend.app.domain.user.user import User
 from capturerrbackend.app.infrastructure.sqlite.database import Base
 from capturerrbackend.app.usecase.user import UserReadModel
+
+if TYPE_CHECKING:
+    from capturerrbackend.app.infrastructure.sqlite import BookDTO
 
 
 def unixtimestamp() -> int:
@@ -22,6 +26,7 @@ class UserDTO(Base):
     email: Mapped[str] = mapped_column(nullable=False)
     hashed_password: Mapped[str] = mapped_column(nullable=True)
     is_superuser: Mapped[bool] = mapped_column(nullable=False, default=True)
+    books: Mapped[List["BookDTO"]] = relationship(back_populates="user")
 
     def to_entity(self) -> User:
         return User(

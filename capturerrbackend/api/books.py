@@ -1,9 +1,8 @@
 from typing import Annotated, List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, status
 
 from capturerrbackend.api.custom_error_route_handler import CustomErrorRouteHandler
-from capturerrbackend.app.domain.user.user_exception import UserNotFoundError
 from capturerrbackend.app.infrastructure.dependencies import (
     book_command_usecase,
     book_query_usecase,
@@ -33,29 +32,11 @@ def create_book(
     user_query_usecase: Annotated[UserQueryUseCase, Depends(user_query_usecase)],
     book_command_usecase: Annotated[BookCommandUseCase, Depends(book_command_usecase)],
 ) -> Optional[BookReadModel]:
-    """Create a book."""
-    # try:
-    user = user_query_usecase.fetch_user_by_id(current_user.id)
-    if user is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=UserNotFoundError.detail,
-        )
-    data.user_id = user.id
+    """Get the user and create a book."""
+    # user = user_query_usecase.fetch_user_by_id(current_user.id)
+    data.user_id = current_user.id
     book = book_command_usecase.create_book(data)
     return book
-    # except BookIsbnAlreadyExistsError as e:
-    #     raise HTTPException(
-    #         status_code=status.HTTP_409_CONFLICT,
-    #         detail=e.message,
-    #     )
-    # except Exception as e:
-    #     logger.error(e)
-    #     raise HTTPException(
-    #         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-    #     )
-
-    # return book
 
 
 @router.get(
@@ -77,6 +58,14 @@ async def get_books(
     status_code=status.HTTP_200_OK,
 )
 async def get_book(
+    book_id: str,
+    book_query_usecase: BookQueryUseCase = Depends(book_query_usecase),
+) -> Optional[BookReadModel]:
+    """Get a book."""
+    return book_query_usecase.fetch_book_by_id(book_id)
+
+
+async def get_books_for_user(
     book_id: str,
     book_query_usecase: BookQueryUseCase = Depends(book_query_usecase),
 ) -> Optional[BookReadModel]:

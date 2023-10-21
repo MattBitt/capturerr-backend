@@ -33,7 +33,7 @@ class BookCommandUseCase(ABC):
     """BookCommandUseCase defines a command usecase inteface related Book entity."""
 
     @abstractmethod
-    def create_book(self, data: BookCreateModel) -> Optional[BookReadModel]:
+    def create_book(self, data: BookCreateModel) -> BookReadModel:
         raise NotImplementedError
 
     @abstractmethod
@@ -58,7 +58,7 @@ class BookCommandUseCaseImpl(BookCommandUseCase):
     ):
         self.uow: BookCommandUseCaseUnitOfWork = uow
 
-    def create_book(self, data: BookCreateModel) -> Optional[BookReadModel]:
+    def create_book(self, data: BookCreateModel) -> BookReadModel:
         try:
             uuid = uuid4().hex
             isbn = Isbn(data.isbn)
@@ -78,11 +78,10 @@ class BookCommandUseCaseImpl(BookCommandUseCase):
             self.uow.commit()
 
             created_book = self.uow.book_repository.find_by_id(uuid)
+            return BookReadModel.from_entity(cast(Book, created_book))
         except:
             self.uow.rollback()
             raise
-
-        return BookReadModel.from_entity(cast(Book, created_book))
 
     def update_book(
         self,

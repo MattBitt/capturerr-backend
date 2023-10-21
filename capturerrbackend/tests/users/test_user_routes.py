@@ -6,6 +6,8 @@ from capturerrbackend.app.domain.user.user_exception import (
     UserNameAlreadyExistsError,
     UserNotFoundError,
 )
+from capturerrbackend.app.usecase.book import BookReadModel
+from capturerrbackend.app.usecase.user import UserReadModel
 
 # app = FastAPI()
 # client = TestClient(app)
@@ -29,10 +31,9 @@ def test_create_user(client: TestClient, fake_user: dict[str, Any]) -> None:
 def test_create_user_with_existing_user_name(
     client: TestClient,
     fake_user: dict[str, Any],
+    new_user_in_db: UserReadModel,
 ) -> None:
     # Arrange
-    response = client.post("/api/users", json=fake_user)
-    assert response.status_code == 201
 
     # Act
     response = client.post("/api/users", json=fake_user)
@@ -42,16 +43,16 @@ def test_create_user_with_existing_user_name(
     assert response.json()["detail"] == UserNameAlreadyExistsError.detail
 
 
-def test_get_users(client: TestClient, fake_user: dict[str, Any]) -> None:
+def test_get_users(client: TestClient, new_user_in_db: UserReadModel) -> None:
     # Arrange
-    response = client.post("/api/users", json=fake_user)
-    assert response.status_code == 201
+
     # Act
     response = client.get("/api/users")
 
     # Assert
     assert response.status_code == 200
     assert len(response.json()) > 0
+    assert response.json()[0]["id"] == new_user_in_db.id
 
 
 def test_get_users_with_no_users(client: TestClient) -> None:
@@ -65,11 +66,10 @@ def test_get_users_with_no_users(client: TestClient) -> None:
     # assert response.json()["detail"] == UsersNotFoundError.message
 
 
-def test_get_user(client: TestClient, fake_user: dict[str, Any]) -> None:
+def test_get_user(client: TestClient, new_user_in_db: UserReadModel) -> None:
     # Arrange
-    response = client.post("/api/users", json=fake_user)
-    assert response.status_code == 201
-    user_id = response.json()["id"]
+
+    user_id = new_user_in_db.id
 
     # Act
     response = client.get(f"/api/users/{user_id}")
@@ -77,6 +77,24 @@ def test_get_user(client: TestClient, fake_user: dict[str, Any]) -> None:
     # Assert
     assert response.status_code == 200
     assert response.json()["id"] == user_id
+
+
+def test_get_user_with_book(
+    client: TestClient,
+    new_user_in_db: UserReadModel,
+    new_book_in_db: BookReadModel,
+) -> None:
+    # Arrange
+
+    user_id = new_user_in_db.id
+
+    # Act
+    response = client.get(f"/api/users/{user_id}")
+
+    # Assert
+    assert response.status_code == 200
+    assert response.json()["id"] == user_id
+    assert response.json()["books"][0]["id"] == new_book_in_db.id
 
 
 def test_get_user_with_invalid_id(client: TestClient) -> None:
@@ -91,19 +109,16 @@ def test_get_user_with_invalid_id(client: TestClient) -> None:
     assert response.json()["detail"] == UserNotFoundError.detail
 
 
-def test_update_user(client: TestClient, fake_user: dict[str, Any]) -> None:
+def test_update_user(client: TestClient, new_user_in_db: UserReadModel) -> None:
     # Arrange
-    response = client.post("/api/users", json=fake_user)
-    assert response.status_code == 201
-
-    user_id = response.json()["id"]
-    response.json()["updated_at"]
+    user_id = new_user_in_db.id
     data = {
         "user_name": "matt",
         "last_name": "Bizzle",
         "first_name": "Matt",
         "email": "matt@bittfurst.xyz",
     }
+
     # Act
     response = client.put(f"/api/users/{user_id}", json=data)
 
@@ -121,11 +136,9 @@ def test_update_user(client: TestClient, fake_user: dict[str, Any]) -> None:
 
 def test_update_user_with_invalid_id(
     client: TestClient,
-    fake_user: dict[str, Any],
+    new_user_in_db: UserReadModel,
 ) -> None:
     # Arrange
-    response = client.post("/api/users", json=fake_user)
-    assert response.status_code == 201
 
     user_id = 999
     data = {
@@ -142,11 +155,9 @@ def test_update_user_with_invalid_id(
     assert response.json()["detail"] == UserNotFoundError.detail
 
 
-def test_delete_user(client: TestClient, fake_user: dict[str, Any]) -> None:
+def test_delete_user(client: TestClient, new_user_in_db: UserReadModel) -> None:
     # Arrange
-    response = client.post("/api/users", json=fake_user)
-    assert response.status_code == 201
-    user_id = response.json()["id"]
+    user_id = new_user_in_db.id
 
     # Act
     response = client.delete(f"/api/users/{user_id}")
@@ -172,13 +183,12 @@ def test_delete_user_with_invalid_id(client: TestClient) -> None:
     assert response.json()["detail"] == UserNotFoundError.detail
 
 
-def test_login_user(client: TestClient, fake_user: dict[str, Any]) -> None:
+def test_login_user(client: TestClient, new_user_in_db: UserReadModel) -> None:
     # Arrange
-    response = client.post("/api/users", json=fake_user)
-    assert response.status_code == 201
+
     # Act
     data = {
-        "user_name": response.json()["user_name"],
+        "user_name": new_user_in_db.user_name,
         "password": "matt",
     }
     response = client.post("/api/users/login", json=data)
