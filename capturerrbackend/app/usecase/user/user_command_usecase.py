@@ -78,6 +78,7 @@ class UserCommandUseCaseImpl(UserCommandUseCase):
                 first_name=data.first_name,
                 last_name=data.last_name,
                 email=data.email,
+                is_superuser=data.is_superuser,
                 hashed_password=get_password_hash(data.password),
                 created_at=cast(int, datetime.now()),
                 updated_at=cast(int, datetime.now()),

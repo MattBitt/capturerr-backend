@@ -30,6 +30,24 @@ def test_create_user(
     assert all_users[0].first_name == fake_user["first_name"]
 
 
+def test_create_super_user(
+    fake_super_user: dict[str, Any],
+    user_command_usecase: UserCommandUseCaseImpl,
+    user_query_usecase: UserQueryUseCaseImpl,
+) -> None:
+    # Arrange
+
+    user_model = UserCreateModel.model_validate(fake_super_user)
+    user = user_command_usecase.create_user(
+        user_model,
+    )
+    assert user is not None
+
+    all_users = user_query_usecase.fetch_users()
+    assert len(all_users) > 0
+    assert all_users[0].is_superuser is True
+
+
 def test_create_user_duplicate_username(
     fake_user: dict[str, Any],
     user_command_usecase: UserCommandUseCaseImpl,

@@ -13,6 +13,7 @@ from sqlalchemy.orm import Session, sessionmaker
 
 from capturerrbackend.app.application import get_app
 from capturerrbackend.app.domain.book.book_repository import BookRepository
+from capturerrbackend.app.domain.capture.capture_repository import CaptureRepository
 from capturerrbackend.app.domain.tag.tag_repository import TagRepository
 from capturerrbackend.app.domain.user.user_repository import UserRepository
 from capturerrbackend.app.infrastructure.dependencies import (
@@ -34,6 +35,11 @@ from capturerrbackend.app.infrastructure.sqlite.book import (
     BookQueryServiceImpl,
     BookRepositoryImpl,
 )
+from capturerrbackend.app.infrastructure.sqlite.capture import (
+    CaptureCommandUseCaseUnitOfWorkImpl,
+    CaptureQueryServiceImpl,
+    CaptureRepositoryImpl,
+)
 from capturerrbackend.app.infrastructure.sqlite.database import Base
 from capturerrbackend.app.infrastructure.sqlite.tag import (
     TagCommandUseCaseUnitOfWorkImpl,
@@ -54,6 +60,16 @@ from capturerrbackend.app.usecase.book import (
     BookQueryUseCase,
     BookQueryUseCaseImpl,
     BookReadModel,
+)
+from capturerrbackend.app.usecase.capture import (
+    CaptureCommandUseCase,
+    CaptureCommandUseCaseImpl,
+    CaptureCommandUseCaseUnitOfWork,
+    CaptureCreateModel,
+    CaptureQueryService,
+    CaptureQueryUseCase,
+    CaptureQueryUseCaseImpl,
+    CaptureReadModel,
 )
 from capturerrbackend.app.usecase.tag import (
     TagCommandUseCase,
@@ -107,6 +123,22 @@ def fake_user() -> dict[str, Any]:
         "last_name": "Bittinger",
         "email": "matt@bittfurst.xyz",
         "password": "matt",
+        "is_superuser": False,
+        "created_at": get_int_timestamp(datetime.now()),
+        "updated_at": get_int_timestamp(datetime.now()),
+        "deleted_at": None,
+    }
+
+
+@pytest.fixture
+def fake_super_user() -> dict[str, Any]:
+    return {
+        "user_name": "admin",
+        "first_name": "Admin",
+        "last_name": "Strator",
+        "email": "admin@bittfurst.xyz",
+        "password": "admin",
+        "is_superuser": True,
         "created_at": get_int_timestamp(datetime.now()),
         "updated_at": get_int_timestamp(datetime.now()),
         "deleted_at": None,
@@ -126,6 +158,25 @@ def fake_tag() -> dict[str, Any]:
 
 
 @pytest.fixture
+def fake_capture() -> dict[str, Any]:
+    return {
+        "entry": "Still coding at 530 in the am.",
+        "entry_type": "asdf",
+        "notes": "I'm way too old for this shit!",
+        "location": "Home",
+        "flagged": "false",
+        "priority": "high",
+        "happened_at": get_int_timestamp(datetime.now()),
+        "due_date": get_int_timestamp(datetime.now()),
+        "created_at": get_int_timestamp(datetime.now()),
+        "updated_at": get_int_timestamp(datetime.now()),
+        "deleted_at": None,
+        "user_id": "vytxeTZskVKR7C7WgdSP3d",
+        "capture_id": "y8ghf;fldsjrewqpiog",
+    }
+
+
+@pytest.fixture
 def new_user_in_db(
     fake_user: dict[str, Any],
     user_command_usecase: Annotated[UserCommandUseCase, Depends(new_ucu)],
@@ -136,6 +187,21 @@ def new_user_in_db(
     user_in_db = user_command_usecase.create_user(user)
 
     assert user_in_db is not None
+    return user_in_db
+
+
+@pytest.fixture
+def new_super_user_in_db(
+    fake_super_user: dict[str, Any],
+    user_command_usecase: Annotated[UserCommandUseCase, Depends(new_ucu)],
+) -> UserReadModel:
+    ...
+    user = UserCreateModel.model_validate(fake_super_user)
+
+    user_in_db = user_command_usecase.create_user(user)
+
+    assert user_in_db is not None
+    assert user_in_db.is_superuser is True
     return user_in_db
 
 
@@ -167,6 +233,21 @@ def new_tag_in_db(
     tag_in_db = tag_command_usecase.create_tag(tag)
     assert tag_in_db is not None
     return tag_in_db
+
+
+@pytest.fixture
+def new_capture_in_db(
+    new_user_in_db: UserReadModel,
+    fake_capture: dict[str, Any],
+    capture_command_usecase: Annotated[CaptureCommandUseCase, Depends(new_tcu)],
+) -> CaptureReadModel:
+    ...
+    fake_capture["user_id"] = new_user_in_db.id
+    capture = CaptureCreateModel.model_validate(fake_capture)
+
+    capture_in_db = capture_command_usecase.create_capture(capture)
+    assert capture_in_db is not None
+    return capture_in_db
 
 
 def reset_db() -> None:
@@ -211,16 +292,16 @@ async def db_session() -> AsyncIterator[AsyncSession]:
     await session.close()
 
 
-def test_user() -> dict[str, str]:
-    return {
-        "id": "1",
-        "email": "matt@bittfurst.xyz",
-        "password": "matt",
-    }
+# def test_user() -> dict[str, str]:
+#     return {
+#         "id": "1",
+#         "email": "matt@bittfurst.xyz",
+#         "password": "matt",
+#     }
 
 
-def test_admin_user() -> dict[str, str]:
-    return {"email": "admin@bittfurst.xyz", "password": "admin"}
+# def test_admin_user() -> dict[str, str]:
+#     return {"email": "admin@bittfurst.xyz", "password": "admin"}
 
 
 @pytest.fixture
@@ -297,6 +378,23 @@ def tag_command_usecase(db_fixture: Session) -> TagCommandUseCase:
     return TagCommandUseCaseImpl(uow)
 
 
+@pytest.fixture()
+def capture_query_usecase(db_fixture: Session) -> CaptureQueryUseCase:
+    """Get a capture query use case."""
+    capture_query_service: CaptureQueryService = CaptureQueryServiceImpl(db_fixture)
+    return CaptureQueryUseCaseImpl(capture_query_service)
+
+
+@pytest.fixture()
+def capture_command_usecase(db_fixture: Session) -> CaptureCommandUseCase:
+    capture_repository: CaptureRepository = CaptureRepositoryImpl(db_fixture)
+    uow: CaptureCommandUseCaseUnitOfWork = CaptureCommandUseCaseUnitOfWorkImpl(
+        db_fixture,
+        capture_repository=capture_repository,
+    )
+    return CaptureCommandUseCaseImpl(uow)
+
+
 @pytest.fixture
 def client(
     db_fixture: Session,
@@ -322,11 +420,16 @@ def client(
             )
         return user
 
+    def _get_current_active_super_user_override() -> UserReadModel:
+        user = _get_current_active_user_override()
+        user.is_superuser = True
+        return user
+
     app = get_app()
     app.dependency_overrides[get_sync_session] = _get_db_override
     app.dependency_overrides[
         get_current_active_super_user
-    ] = _get_current_active_user_override
+    ] = _get_current_active_super_user_override
     app.dependency_overrides[
         get_current_active_user
     ] = _get_current_active_user_override

@@ -8,6 +8,7 @@ from sqlalchemy import create_engine, exc
 from sqlalchemy.orm import Session, sessionmaker
 
 from capturerrbackend.app.domain.book.book_repository import BookRepository
+from capturerrbackend.app.domain.capture.capture_repository import CaptureRepository
 from capturerrbackend.app.domain.tag.tag_repository import TagRepository
 from capturerrbackend.app.domain.user.user_exception import (
     UserBadCredentialsError,
@@ -19,6 +20,11 @@ from capturerrbackend.app.infrastructure.sqlite.book import (
     BookCommandUseCaseUnitOfWorkImpl,
     BookQueryServiceImpl,
     BookRepositoryImpl,
+)
+from capturerrbackend.app.infrastructure.sqlite.capture import (
+    CaptureCommandUseCaseUnitOfWorkImpl,
+    CaptureQueryServiceImpl,
+    CaptureRepositoryImpl,
 )
 from capturerrbackend.app.infrastructure.sqlite.tag import (
     TagCommandUseCaseUnitOfWorkImpl,
@@ -37,6 +43,14 @@ from capturerrbackend.app.usecase.book import (
     BookQueryService,
     BookQueryUseCase,
     BookQueryUseCaseImpl,
+)
+from capturerrbackend.app.usecase.capture import (
+    CaptureCommandUseCase,
+    CaptureCommandUseCaseImpl,
+    CaptureCommandUseCaseUnitOfWork,
+    CaptureQueryService,
+    CaptureQueryUseCase,
+    CaptureQueryUseCaseImpl,
 )
 from capturerrbackend.app.usecase.tag import (
     TagCommandUseCase,
@@ -168,3 +182,23 @@ def tag_command_usecase(
         tag_repository=tag_repository,
     )
     return TagCommandUseCaseImpl(uow)
+
+
+def capture_query_usecase(
+    session: Annotated[Session, Depends(get_sync_session)],
+) -> CaptureQueryUseCase:
+    """Get a capture query use case."""
+    capture_query_service: CaptureQueryService = CaptureQueryServiceImpl(session)
+    return CaptureQueryUseCaseImpl(capture_query_service)
+
+
+def capture_command_usecase(
+    session: Annotated[Session, Depends(get_sync_session)],
+) -> CaptureCommandUseCase:
+    """Get a capture command use case."""
+    capture_repository: CaptureRepository = CaptureRepositoryImpl(session)
+    uow: CaptureCommandUseCaseUnitOfWork = CaptureCommandUseCaseUnitOfWorkImpl(
+        session,
+        capture_repository=capture_repository,
+    )
+    return CaptureCommandUseCaseImpl(uow)

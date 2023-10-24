@@ -8,7 +8,7 @@ from capturerrbackend.app.infrastructure.sqlite.database import Base
 from capturerrbackend.app.usecase.user import UserReadModel
 
 if TYPE_CHECKING:
-    from capturerrbackend.app.infrastructure.sqlite import BookDTO, TagDTO
+    from capturerrbackend.app.infrastructure.sqlite import BookDTO, CaptureDTO, TagDTO
 
 
 def unixtimestamp() -> int:
@@ -28,6 +28,7 @@ class UserDTO(Base):
     is_superuser: Mapped[bool] = mapped_column(nullable=False, default=True)
     books: Mapped[List["BookDTO"]] = relationship(back_populates="user")
     tags: Mapped[List["TagDTO"]] = relationship(back_populates="user")
+    captures: Mapped[List["CaptureDTO"]] = relationship(back_populates="user")
 
     def to_entity(self) -> User:
         return User(

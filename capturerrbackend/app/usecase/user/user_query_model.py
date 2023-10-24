@@ -25,6 +25,7 @@ class UserReadModel(BaseModel):
     deleted_at: Optional[str] = Field(example="1136214245000", default=None)
     hashed_password: Optional[str] = Field(example="bjcvljdsaflkrjqewoigfddsaf")
     books: Optional[List[Any]] = Field(default=None)
+    captures: Optional[List[Any]] = Field(default=None)
 
     @staticmethod
     def from_entity(user: User) -> "UserReadModel":
