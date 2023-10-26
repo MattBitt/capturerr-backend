@@ -1,14 +1,12 @@
 from sqlalchemy.orm import Session
 
 from capturerrbackend.app.infrastructure.sqlite.capture import CaptureQueryServiceImpl
-
-# from ..app.infrastructure.dependencies import capture_command_usecase, capture_query_usecase
-from capturerrbackend.app.usecase.capture import CaptureCreateModel, CaptureQueryService
+from capturerrbackend.app.usecase.capture import CaptureQueryService, CaptureReadModel
 
 
 def test_capture_query_service_find(
     db_fixture: Session,
-    new_capture_in_db: CaptureCreateModel,
+    new_capture_in_db: CaptureReadModel,
 ) -> None:
     capture_query_service: CaptureQueryService = CaptureQueryServiceImpl(db_fixture)
     assert isinstance(capture_query_service, CaptureQueryServiceImpl)
@@ -24,4 +22,4 @@ def test_capture_query_service_find(
 
     captures = capture_query_service.find_all()
     assert len(captures) == 1
-    assert captures[0] == new_capture_in_db
+    assert captures[0].entry == new_capture_in_db.entry

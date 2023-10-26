@@ -153,7 +153,6 @@ def fake_tag() -> dict[str, Any]:
         "updated_at": get_int_timestamp(datetime.now()),
         "deleted_at": None,
         "user_id": "vytxeTZskVKR7C7WgdSP3d",
-        "capture_id": "y8ghf;fldsjrewqpiog",
     }
 
 

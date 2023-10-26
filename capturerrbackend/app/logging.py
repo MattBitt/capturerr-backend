@@ -50,11 +50,12 @@ def configure_logging() -> None:  # pragma: no cover
     for logger_name in logging.root.manager.loggerDict:
         if logger_name.startswith("uvicorn."):
             logging.getLogger(logger_name).handlers = []
-
+        if logger_name.startswith("sqlalchemy."):
+            logging.getLogger(logger_name).handlers = []
     # change handler for default uvicorn logger
     logging.getLogger("uvicorn").handlers = [intercept_handler]
     logging.getLogger("uvicorn.access").handlers = [intercept_handler]
-
+    logging.getLogger("sqlalchemy").handlers = [intercept_handler]
     # set logs output, level and format
     logger.remove()
     logger.add(

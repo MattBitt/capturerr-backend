@@ -2,12 +2,13 @@ from abc import ABC, abstractmethod
 from typing import Optional, cast
 from uuid import uuid4
 
+from capturerrbackend.app.domain.capture.capture_repository import CaptureRepository
+
 from ...domain.capture.capture import Capture
 from ...domain.capture.capture_exception import (
     CaptureAlreadyExistsError,
     CaptureNotFoundError,
 )
-from ...domain.capture.capture_repository import CaptureRepository
 from .capture_command_model import CaptureCreateModel, CaptureUpdateModel
 from .capture_query_model import CaptureReadModel
 
@@ -32,7 +33,8 @@ class CaptureCommandUseCaseUnitOfWork(ABC):
 
 
 class CaptureCommandUseCase(ABC):
-    """CaptureCommandUseCase defines a command usecase inteface related Capture entity."""
+    """CaptureCommandUseCase defines a command usecase inteface
+    related Capture entity."""
 
     @abstractmethod
     def create_capture(self, data: CaptureCreateModel) -> CaptureReadModel:
@@ -50,9 +52,14 @@ class CaptureCommandUseCase(ABC):
     def delete_capture_by_id(self, capture_id: str) -> None:
         raise NotImplementedError
 
+    @abstractmethod
+    def add_tag_to_capture(self, capture_id: str, tag_id: str) -> CaptureReadModel:
+        raise NotImplementedError
+
 
 class CaptureCommandUseCaseImpl(CaptureCommandUseCase):
-    """CaptureCommandUseCaseImpl implements a command usecases related Capture entity."""
+    """CaptureCommandUseCaseImpl implements a command
+    usecases related Capture entity."""
 
     def __init__(
         self,
@@ -130,8 +137,18 @@ class CaptureCommandUseCaseImpl(CaptureCommandUseCase):
                 raise CaptureNotFoundError
 
             self.uow.capture_repository.delete_by_id(capture_id)
-
             self.uow.commit()
         except:
             self.uow.rollback()
             raise
+
+    def add_tag_to_capture(self, capture_id: str, tag_id: str) -> CaptureReadModel:
+        try:
+            self.uow.capture_repository.add_tag(capture_id, tag_id)
+            self.uow.commit()
+        except:
+            self.uow.rollback()
+            raise
+
+        created_capture = self.uow.capture_repository.find_by_id(capture_id)
+        return CaptureReadModel.from_entity(cast(Capture, created_capture))

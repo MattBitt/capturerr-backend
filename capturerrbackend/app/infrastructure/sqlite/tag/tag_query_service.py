@@ -3,6 +3,8 @@ from typing import List, Optional
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm.session import Session
 
+from capturerrbackend.app.infrastructure.sqlite.associations import capture_tags
+
 from ....usecase.tag import TagQueryService, TagReadModel
 from .tag_dto import TagDTO
 
@@ -63,3 +65,20 @@ class TagQueryServiceImpl(TagQueryService):
             raise
 
         return tag_dto.to_read_model()
+
+    def find_by_capture_id(self, capture_id: str) -> List[TagReadModel]:
+        try:
+            cap_tag_dtos = (
+                self.session.query(TagDTO)
+                .join(capture_tags)
+                .where(capture_id == capture_tags.c.capture_id)  # type: ignore
+                .limit(100)
+                .all()
+            )
+        except:
+            raise
+
+        if len(cap_tag_dtos) == 0:
+            return []
+
+        return list(map(lambda tag_dto: tag_dto.to_read_model(), cap_tag_dtos))

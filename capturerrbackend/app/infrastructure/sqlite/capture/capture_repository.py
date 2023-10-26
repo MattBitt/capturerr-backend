@@ -1,13 +1,14 @@
 from typing import Optional
 
+from sqlalchemy import insert
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm.session import Session
 
 from capturerrbackend.app.domain.capture.capture import Capture
 from capturerrbackend.app.domain.capture.capture_repository import CaptureRepository
+from capturerrbackend.app.infrastructure.sqlite.associations import capture_tags
+from capturerrbackend.app.infrastructure.sqlite.capture.capture_dto import CaptureDTO
 from capturerrbackend.app.usecase.capture import CaptureCommandUseCaseUnitOfWork
-
-from .capture_dto import CaptureDTO
 
 
 class CaptureRepositoryImpl(CaptureRepository):
@@ -61,6 +62,13 @@ class CaptureRepositoryImpl(CaptureRepository):
     def delete_by_id(self, capture_id: str) -> None:
         try:
             self.session.query(CaptureDTO).filter_by(id=capture_id).delete()
+        except:
+            raise
+
+    def add_tag(self, capture_id: str, tag_id: str) -> None:
+        try:
+            stmt = insert(capture_tags).values(capture_id=capture_id, tag_id=tag_id)
+            self.session.execute(stmt)
         except:
             raise
 

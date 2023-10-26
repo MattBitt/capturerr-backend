@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Any
 
 from capturerrbackend.app.domain.capture.capture_exception import (
@@ -9,14 +10,20 @@ from capturerrbackend.app.usecase.capture import (
     CaptureCommandUseCaseImpl,
     CaptureCreateModel,
     CaptureQueryUseCaseImpl,
+    CaptureReadModel,
     CaptureUpdateModel,
 )
+from capturerrbackend.app.usecase.tag import (
+    TagCommandUseCaseImpl,
+    TagCreateModel,
+    TagQueryUseCaseImpl,
+)
 from capturerrbackend.app.usecase.user import UserReadModel
+from capturerrbackend.utils.utils import get_int_timestamp
 
 
 def test_create_capture(
     fake_capture: dict[str, Any],
-    new_user_in_db: dict[str, Any],
     capture_command_usecase: CaptureCommandUseCaseImpl,
     capture_query_usecase: CaptureQueryUseCaseImpl,
 ) -> None:
@@ -149,3 +156,39 @@ def test_update_capture_bad_id(
     except CaptureNotFoundError as e:
         assert e.status_code == CaptureNotFoundError.status_code
         assert e.detail == CaptureNotFoundError.detail
+
+
+def test_add_new_tag_to_capture(
+    new_capture_in_db: CaptureReadModel,
+    capture_command_usecase: CaptureCommandUseCaseImpl,
+    capture_query_usecase: CaptureQueryUseCaseImpl,
+    tag_command_usecase: TagCommandUseCaseImpl,
+    tag_query_usecase: TagQueryUseCaseImpl,
+) -> None:
+    # Arrange
+    capture = new_capture_in_db
+
+    tag_info = {
+        "user_id": capture.user_id,
+        "text": "a-brand-new-tag-that-doesnt-exist-yet15",
+        "created_at": get_int_timestamp(datetime.now()),
+        "updated_at": get_int_timestamp(datetime.now()),
+    }
+    tag_model = TagCreateModel.model_validate(tag_info)
+    tag = tag_command_usecase.get_or_create_tag(tag_model)
+
+    # new_tag = tag_command_usecase.create_tag(tag)
+
+    # assert capture.tags is None
+    # assert tag.captures is None
+    capture_command_usecase.add_tag_to_capture(capture.id, tag.id)
+    new_tag = tag_query_usecase.fetch_tag_by_text(tag.text)
+    assert new_tag is not None
+    capture.tags = tag_query_usecase.fetch_tags_for_capture(capture.id)
+
+    # updated_capture = capture_query_usecase.fetch_capture_by_id(capture.id)
+    # updated_tag = capture_query_usecase.fetch_tag_by_id(tag.id)
+    # assert capture_tags.tags is not None
+    # assert tag.captures is not None
+    assert capture.tags[0].id is not None
+    # assert tag.captures[0].id == capture.id

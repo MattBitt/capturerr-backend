@@ -1,5 +1,5 @@
 import sqlalchemy as sa
-from sqlalchemy import Boolean, Integer, String, create_engine, func
+from sqlalchemy import Boolean, Integer, create_engine, func
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, sessionmaker
 
@@ -32,10 +32,6 @@ class Base(DeclarativeBase):
     id: Mapped[str] = mapped_column(primary_key=True)
 
     is_active = mapped_column(Boolean, default=True)
-
-    created_by: Mapped[str] = mapped_column(String, nullable=True)
-
-    updated_by: Mapped[str] = mapped_column(String, nullable=True)
 
     @declared_attr
     def created_at(self) -> Mapped[int]:

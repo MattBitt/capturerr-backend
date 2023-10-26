@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Capture domain"""
 
-from typing import Optional
+from typing import Any, Optional
 
 
 class Capture:
@@ -22,6 +22,7 @@ class Capture:
         created_at: Optional[int] = None,
         updated_at: Optional[int] = None,
         deleted_at: Optional[int] = None,
+        tags: Optional[list[Any]] = [],
     ):
         self.capture_id: str = capture_id
         self.user_id: str = user_id
@@ -31,6 +32,7 @@ class Capture:
         self.location: str = location
         self.flagged: bool = flagged
         self.priority: str = priority
+        self.tags: Optional[list[Any]] = tags
         self.happened_at: Optional[int] = happened_at
         self.due_date: Optional[int] = due_date
         self.created_at: Optional[int] = created_at

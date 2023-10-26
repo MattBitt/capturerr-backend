@@ -1,15 +1,16 @@
 from datetime import datetime
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List
 
 from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from capturerrbackend.app.domain.capture.capture import Capture
+from capturerrbackend.app.infrastructure.sqlite.associations import capture_tags
 from capturerrbackend.app.infrastructure.sqlite.database import Base
 from capturerrbackend.app.usecase.capture import CaptureReadModel
 
 if TYPE_CHECKING:
-    from capturerrbackend.app.infrastructure.sqlite import UserDTO
+    from capturerrbackend.app.infrastructure.sqlite import TagDTO, UserDTO
 
 
 def unixtimestamp() -> int:
@@ -19,6 +20,7 @@ def unixtimestamp() -> int:
 class CaptureDTO(Base):
     """CaptureDTO is a data transfer object associated with Capture entity."""
 
+    __allow_unmapped__ = True
     __tablename__ = "capture"
     entry: Mapped[str] = mapped_column(String, unique=True, nullable=False)
 
@@ -34,6 +36,11 @@ class CaptureDTO(Base):
     user_id: Mapped[str] = mapped_column(ForeignKey("user.id"))
     user: Mapped["UserDTO"] = relationship(back_populates="captures")
 
+    tags: Mapped[List["TagDTO"]] = relationship(
+        secondary=capture_tags,
+        back_populates="captures",
+    )
+
     def to_entity(self) -> Capture:
         return Capture(
             capture_id=self.id,
@@ -46,6 +53,7 @@ class CaptureDTO(Base):
             happened_at=self.happened_at,
             due_date=self.due_date,
             user_id=self.user_id,
+            # tags=self.tags,
             created_at=self.created_at,
             updated_at=self.updated_at,
             deleted_at=self.deleted_at,
@@ -63,6 +71,7 @@ class CaptureDTO(Base):
             happened_at=self.happened_at,
             due_date=self.due_date,
             user_id=self.user_id,
+            # tags=self.tags,
             created_at=self.created_at,
             updated_at=self.updated_at,
             deleted_at=self.deleted_at,
@@ -82,6 +91,7 @@ class CaptureDTO(Base):
             happened_at=capture.happened_at,
             due_date=capture.due_date,
             user_id=capture.user_id,
+            # tags=capture.tags,
             created_at=now,
             updated_at=now,
             deleted_at=None,

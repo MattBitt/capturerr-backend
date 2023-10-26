@@ -8,15 +8,17 @@ from capturerrbackend.app.domain.capture.capture_exception import (
     CaptureNotFoundError,
     CapturesNotFoundError,
 )
-from capturerrbackend.app.usecase.capture.capture_query_usecase import CaptureReadModel
-from capturerrbackend.app.usecase.user.user_query_usecase import UserReadModel
+from capturerrbackend.app.usecase.capture import CaptureReadModel
+from capturerrbackend.app.usecase.user import UserReadModel
 
 # app = FastAPI()
 # client = TestClient(app)
 
 
 def test_create_capture(
-    client: TestClient, new_user_in_db: UserReadModel, fake_capture: dict[str, Any]
+    client: TestClient,
+    new_user_in_db: UserReadModel,
+    fake_capture: dict[str, Any],
 ) -> None:
     # Arrange
 
@@ -89,7 +91,8 @@ def test_get_capture_with_invalid_id(client: TestClient) -> None:
 
 
 def test_update_capture(
-    client: TestClient, new_capture_in_db: CaptureReadModel
+    client: TestClient,
+    new_capture_in_db: CaptureReadModel,
 ) -> None:
     # Arrange
     capture_id = new_capture_in_db.id
@@ -107,7 +110,8 @@ def test_update_capture(
 
 
 def test_update_capture_with_invalid_id(
-    client: TestClient, new_capture_in_db: CaptureReadModel
+    client: TestClient,
+    new_capture_in_db: CaptureReadModel,
 ) -> None:
     # Arrange
     capture_id = "some invalid id"

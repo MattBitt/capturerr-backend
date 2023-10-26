@@ -29,3 +29,7 @@ class CaptureRepository(ABC):
     @abstractmethod
     def delete_by_id(self, capture_id: str) -> Optional[Capture]:
         raise NotImplementedError
+
+    @abstractmethod
+    def add_tag(self, capture_id: str, tag_id: str) -> None:
+        raise NotImplementedError

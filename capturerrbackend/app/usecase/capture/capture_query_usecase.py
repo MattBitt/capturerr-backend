@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import List, Optional
+from typing import List
 
 from ...domain.capture.capture_exception import (
     CaptureNotFoundError,
@@ -13,7 +13,7 @@ class CaptureQueryUseCase(ABC):
     """CaptureQueryUseCase defines a query usecase inteface related Capture entity."""
 
     @abstractmethod
-    def fetch_capture_by_id(self, capture_id: str) -> Optional[CaptureReadModel]:
+    def fetch_capture_by_id(self, capture_id: str) -> CaptureReadModel:
         """fetch_capture_by_id fetches a capture by id."""
         raise NotImplementedError
 
@@ -34,7 +34,7 @@ class CaptureQueryUseCaseImpl(CaptureQueryUseCase):
     def __init__(self, capture_query_service: CaptureQueryService):
         self.capture_query_service: CaptureQueryService = capture_query_service
 
-    def fetch_capture_by_id(self, capture_id: str) -> Optional[CaptureReadModel]:
+    def fetch_capture_by_id(self, capture_id: str) -> CaptureReadModel:
         """fetch_capture_by_id fetches a capture by id."""
         try:
             capture = self.capture_query_service.find_by_id(capture_id)

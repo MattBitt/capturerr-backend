@@ -8,7 +8,6 @@ class TagCreateModel(BaseModel):
         example="Domain-Driven Design: Tackling Complexity in the Heart of Softwares",
     )
     user_id: str = Field(example="vytxeTZskVKR7C7WgdSP3d")
-    capture_id: str = Field(example="vytxeTZskVKR7C7WgdSP3d")
 
 
 class TagUpdateModel(BaseModel):
@@ -17,3 +16,4 @@ class TagUpdateModel(BaseModel):
     text: str = Field(
         example="monotone",
     )
+    user_id: str = Field(example="vytxeTZskVKR7C7WgdSP3d")

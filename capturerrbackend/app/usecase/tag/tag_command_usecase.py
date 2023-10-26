@@ -40,6 +40,10 @@ class TagCommandUseCase(ABC):
         raise NotImplementedError
 
     @abstractmethod
+    def get_or_create_tag(self, data: TagCreateModel) -> TagReadModel:
+        raise NotImplementedError
+
+    @abstractmethod
     def update_tag(
         self,
         tag_id: str,
@@ -65,15 +69,35 @@ class TagCommandUseCaseImpl(TagCommandUseCase):
         try:
             uuid = uuid4().hex
             tag = Tag(
-                tag_id=uuid,
+                id=uuid,
                 text=data.text,
                 user_id=data.user_id,
-                capture_id=data.capture_id,
             )
 
             existing_tag = self.uow.tag_repository.find_by_text(data.text)
             if existing_tag is not None:
                 raise TagAlreadyExistsError
+
+            self.uow.tag_repository.create(tag)
+            self.uow.commit()
+
+            created_tag = self.uow.tag_repository.find_by_id(uuid)
+            return TagReadModel.from_entity(cast(Tag, created_tag))
+        except:
+            self.uow.rollback()
+            raise
+
+    def get_or_create_tag(self, data: TagCreateModel) -> TagReadModel:
+        try:
+            existing_tag = self.uow.tag_repository.find_by_text(data.text)
+            if existing_tag is not None:
+                return TagReadModel.from_entity(existing_tag)
+            uuid = uuid4().hex
+            tag = Tag(
+                id=uuid,
+                text=data.text,
+                user_id=data.user_id,
+            )
 
             self.uow.tag_repository.create(tag)
             self.uow.commit()
@@ -95,15 +119,14 @@ class TagCommandUseCaseImpl(TagCommandUseCase):
                 raise TagNotFoundError
 
             tag = Tag(
-                tag_id=existing_tag.tag_id,
+                id=existing_tag.id,
                 text=data.text,
                 user_id=existing_tag.user_id,
-                capture_id=existing_tag.capture_id,
             )
 
             self.uow.tag_repository.update(tag)
 
-            updated_tag = self.uow.tag_repository.find_by_id(tag.tag_id)
+            updated_tag = self.uow.tag_repository.find_by_id(tag.id)
 
             self.uow.commit()
         except:

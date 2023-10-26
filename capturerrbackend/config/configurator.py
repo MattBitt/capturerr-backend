@@ -153,6 +153,7 @@ class Dev(Common):
     # dbServer: str = "localhost:3306"
     # portalApi: str = "http://localhost"
     db_url: str = "sqlite:///mydata.db"
+    db_echo: bool = True
     log_level: str = "DEBUG"
     model_config = SettingsConfigDict(env_file=f"{site.USER_BASE}f/{env}.env")
 
@@ -168,6 +169,7 @@ class Test(Common):
     env: str = "test"
     # dbServer: str = "t-l-docker01:3306"
     db_url: str = "sqlite:///capturerr-testing-db.db"
+    db_echo: bool = True
     log_level: str = "DEBUG"
 
     model_config = SettingsConfigDict(env_file=f"{site.USER_BASE}f/{env}.env")

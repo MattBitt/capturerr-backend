@@ -22,3 +22,7 @@ class TagQueryService(ABC):
     @abstractmethod
     def find_by_user_id(self, user_id: str) -> List[TagReadModel]:
         raise NotImplementedError
+
+    @abstractmethod
+    def find_by_capture_id(self, capture_id: str) -> List[TagReadModel]:
+        raise NotImplementedError
